@@ -12,12 +12,19 @@ def launch(plan, node_name, image):
     NODE_DATA_DIRPATH =  DATA_DIRPATH + "/" + node_name
     NODE_CONFIG_FILE_PATH = NODE_DATA_DIRPATH + "/config.json"
     
+    init_datadir_cmd_str = "mkdir -p {0}".format(NODE_DATA_DIRPATH)
     launch_node_cmd = [
 	    "./avalanchego",
-		"--data-dir=" + NODE_DATA_DIRPATH,
-		"--config-file=" + NODE_CONFIG_FILE_PATH,
+		# "--data-dir=" + NODE_DATA_DIRPATH,
+		# "--config-file=" + NODE_CONFIG_FILE_PATH,
 	]
-    command_str = " ".join(launch_node_cmd)
+    launch_node_command_str = " ".join(launch_node_cmd)
+
+    subcommand_strs = [
+		init_datadir_cmd_str,
+		launch_node_cmd_str,
+	]
+	command_str = " && ".join(subcommand_strs)
 
     # Create node config json
     node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
