@@ -3,9 +3,9 @@ static_files = import_module("github.com/kurtosis-tech/avalanche-package/static_
 RPC_PORT_NUM = 9650
 RPC_PORT_ID = "rpc"
 
-BUILD_DIRPATH = "build"
+BUILD_DIRPATH = "/build"
 PLUGIN_DIRPATH = BUILD_DIRPATH + "/plugins"
-DATA_DIRPATH= BUILD_DIRPATH + "data/"
+DATA_DIRPATH= BUILD_DIRPATH + "/data"
 
 def launch(plan, node_name, image):
     # Create launch node cmd
@@ -18,7 +18,7 @@ def launch(plan, node_name, image):
 		"--config-file=" + NODE_CONFIG_FILE_PATH,
 	]
     command_str = " ".join(launch_node_cmd)
-    
+
     # Create node config json
     node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
     cfg_template_data = {
