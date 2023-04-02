@@ -24,7 +24,7 @@ def launch(plan, node_name, image):
 		init_datadir_cmd_str,
 		launch_node_cmd_str,
 	]
-	command_str = " && ".join(subcommand_strs)
+    command_str = " && ".join(subcommand_strs)
 
     # Create node config json
     node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
