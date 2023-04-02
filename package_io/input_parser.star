@@ -3,9 +3,7 @@ DEFAULT_AVALANCHEGO_IMAGE = "avaplatform/avalanchego"
 def parse_input(input_args):
     result = get_default_input_args()
     for attr in input_args:
-        value = input_args[attr]
-        if attr in input_args:
-                result[attr] = value
+        result[attr] = value
     return result
 
 def get_default_input_args():

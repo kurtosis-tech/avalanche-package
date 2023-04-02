@@ -17,7 +17,8 @@ def launch(plan, node_name, image):
 		"--data-dir=" + NODE_DATA_DIRPATH,
 		"--config-file=" + NODE_CONFIG_FILE_PATH,
 	]
-
+    command_str = " ".join(launch_node_cmd)
+    
     # Create node config json
     node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
     cfg_template_data = {
@@ -33,17 +34,15 @@ def launch(plan, node_name, image):
         name = "node-cfg"
     )
 
-    command_str = " && ".join(launch_node_cmd)
-
-    node_config = ServiceConfig(
+    node_service_config = ServiceConfig(
         image = image,
         ports = {
             "RPC": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP")
         },
+        cmd = [command_str],
         files = {
             NODE_CONFIG_FILE_PATH: node_cfg_artifact,
         },
-        cmd = command_str
     )
 
-    node_service = plan.add_service(node_name, node_config)
+    node_service = plan.add_service(node_name, node_service_config)
