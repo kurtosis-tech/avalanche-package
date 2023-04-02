@@ -6,6 +6,7 @@ def parse_input(input_args):
         value = input_args[attr]
         if attr in input_args:
                 result[attr] = value
+    return result
 
 def get_default_input_args():
     default_node_cfg = get_default_node_cfg()
