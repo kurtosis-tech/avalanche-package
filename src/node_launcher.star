@@ -1,4 +1,4 @@
-static_files = import_module("github.com/kurtosis-tech/avalanche-package/static_files/static_files")
+static_files = import_module("github.com/kurtosis-tech/avalanche-package/static_files/static_files.star")
 
 RPC_PORT_NUM = 9650
 RPC_PORT_ID = "rpc"
