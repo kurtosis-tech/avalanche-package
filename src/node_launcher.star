@@ -3,40 +3,37 @@ static_files = import_module("github.com/kurtosis-tech/avalanche-package/static_
 RPC_PORT_NUM = 9650
 RPC_PORT_ID = "rpc"
 
-BUILD_DIRPATH = "."
+BUILD_DIRPATH = "build"
 PLUGIN_DIRPATH = BUILD_DIRPATH + "/plugins"
-DATA_DIRPATH= "tmp/subnet-evm-start-node/"
+DATA_DIRPATH= BUILD_DIRPATH + "data/"
 
 def launch(plan, node_name, image):
     # Create launch node cmd
-    NODE_DATA_DIR = DATA_DIR + "/" + node_name
+    NODE_DATA_DIRPATH =  DATA_DIRPATH + "/" + node_name
     NODE_CONFIG_FILE_PATH = NODE_DATA_DIR + "/config.json"
 
 	launch_node_cmd = [
 		"./avalanchego",
-		"--datadir=" + NODE_DATA_DIR,
+		"--data-dir=" + NODE_DATA_DIRPATH,
 		"--config-file=" + NODE_CONFIG_FILE_PATH,
 	]
 
     # Create node config json
-    node_config_template = read_file(static_files.NODE_CONFIG_JSON_FILEPATH)
+    node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
     cfg_template_data = {
-        "PluginDirPath": NODE_CONFIG_FILE_PATH
+        "PluginDirPath": PLUGIN_DIRPATH
     }
     node_cfg_artifact = plan.render_templates(
         config= {
             "config.json" = struct(
-                template = node_config_template,
+                template = node_cfg_template,
                 data = cfg_template_data,
             ),
         },
-        name = "config-artifact"
+        name = "node-cfg"
     )
 
-    subcommand_strs = [
-        launch_node_cmd,
-    ]
-    command_str = " && ".join(subcommand_strs)
+    command_str = " && ".join(launch_node_cmd)
 
     node_config = ServiceConfig(
         image = image,
