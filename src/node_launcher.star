@@ -18,7 +18,7 @@ def launch(plan, node_name, image):
 		# "--data-dir=" + NODE_DATA_DIRPATH,
 		# "--config-file=" + NODE_CONFIG_FILE_PATH,
 	]
-    launch_node_command_str = " ".join(launch_node_cmd)
+    launch_node_cmd_str = " ".join(launch_node_cmd)
 
     subcommand_strs = [
 		init_datadir_cmd_str,
