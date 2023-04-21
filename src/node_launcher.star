@@ -46,7 +46,7 @@ def launch(plan, node_name, image):
             # init_datadir_cmd_str, 
             launch_node_cmd_str],
         files = {
-            "/tmp/data/node1/": node_cfg_artifact.uuid
+            "/tmp/data/node1/": node_cfg_artifact
         },
     )
 
