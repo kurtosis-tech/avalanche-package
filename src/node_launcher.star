@@ -26,7 +26,7 @@ def launch(plan, node_name, image):
     # Create node config json
     node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
     cfg_template_data = {
-        "PluginDirPath":"/tmp/plugins"
+        "PluginDirPath":"/tmp/plugins/"
     }
     node_cfg_artifact = plan.render_templates(
         config= {
