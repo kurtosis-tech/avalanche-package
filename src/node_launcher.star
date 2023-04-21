@@ -3,33 +3,29 @@ static_files = import_module("github.com/kurtosis-tech/avalanche-package/static_
 RPC_PORT_NUM = 9650
 RPC_PORT_ID = "rpc"
 
-BUILD_DIRPATH = "/build"
-PLUGIN_DIRPATH = BUILD_DIRPATH + "/plugins"
-DATA_DIRPATH= BUILD_DIRPATH + "/data"
+ENTRYPOINT_ARGS = ["bash", "-c"]
+
+PLUGIN_DIRPATH = "plugins"
+DATA_DIRPATH= "data"
 
 def launch(plan, node_name, image):
     # Create launch node cmd
+    EXECUTABLE_PATH = "avalanchego"
     NODE_DATA_DIRPATH =  DATA_DIRPATH + "/" + node_name
-    NODE_CONFIG_FILE_PATH = NODE_DATA_DIRPATH + "/config.json"
+    NODE_CONFIG_FILE_PATH = "/" + NODE_DATA_DIRPATH + "/config.json"
     
-    init_datadir_cmd_str = "mkdir -p {0}".format(NODE_DATA_DIRPATH)
+    # init_datadir_cmd_str = "mkdir -p {0}/".format(NODE_DATA_DIRPATH)
     launch_node_cmd = [
-	    "./avalanchego",
-		# "--data-dir=" + NODE_DATA_DIRPATH,
-		# "--config-file=" + NODE_CONFIG_FILE_PATH,
+	    "./" + EXECUTABLE_PATH,
+		"--data-dir=/tmp/data/node1/,
+		"--config-file=/tmp/data/node1/config.json",
 	]
     launch_node_cmd_str = " ".join(launch_node_cmd)
-
-    subcommand_strs = [
-		init_datadir_cmd_str,
-		launch_node_cmd_str,
-	]
-    command_str = " && ".join(subcommand_strs)
 
     # Create node config json
     node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
     cfg_template_data = {
-        "PluginDirPath": PLUGIN_DIRPATH
+        "PluginDirPath":"/tmp/plugins"
     }
     node_cfg_artifact = plan.render_templates(
         config= {
@@ -46,9 +42,11 @@ def launch(plan, node_name, image):
         ports = {
             "RPC": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP")
         },
-        cmd = [command_str],
+        cmd = [
+            # init_datadir_cmd_str, 
+            launch_node_cmd_str],
         files = {
-            NODE_CONFIG_FILE_PATH: node_cfg_artifact,
+            "/tmp/data/node1/": node_cfg_artifact.uuid
         },
     )
 
