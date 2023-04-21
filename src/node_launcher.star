@@ -16,7 +16,7 @@ def launch(plan, node_name, image):
     
     # init_datadir_cmd_str = "mkdir -p {0}/".format(NODE_DATA_DIRPATH)
     launch_node_cmd = [
-	    "./avalanchego/build/avalanchego,
+	    "./avalanchego/build/avalanchego",
 		"--data-dir=/tmp/data/node1/",
 		"--config-file=/tmp/data/node1/config.json",
 	]
