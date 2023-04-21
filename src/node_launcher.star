@@ -17,7 +17,7 @@ def launch(plan, node_name, image):
     # init_datadir_cmd_str = "mkdir -p {0}/".format(NODE_DATA_DIRPATH)
     launch_node_cmd = [
 	    "./" + EXECUTABLE_PATH,
-		"--data-dir=/tmp/data/node1/,
+		"--data-dir=/tmp/data/node1/",
 		"--config-file=/tmp/data/node1/config.json",
 	]
     launch_node_cmd_str = " ".join(launch_node_cmd)
@@ -51,3 +51,5 @@ def launch(plan, node_name, image):
     )
 
     node_service = plan.add_service(node_name, node_service_config)
+
+    # add a wait
