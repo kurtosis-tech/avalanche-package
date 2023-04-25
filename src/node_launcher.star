@@ -18,7 +18,6 @@ def launch(plan, node_name, image):
     launch_node_cmd = [
 	    "./avalanchego",
 		"--data-dir=/tmp/data/node1/",
-		"--config-file=/tmp/data/node1/config.json",
 	]
     launch_node_cmd_str = " ".join(launch_node_cmd)
 
@@ -42,6 +41,7 @@ def launch(plan, node_name, image):
         ports = {
             "RPC": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP")
         },
+        entrypoint = ["/bin/sh", "-c"],
         cmd = [
             # init_datadir_cmd_str, 
             launch_node_cmd_str],
