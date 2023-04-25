@@ -24,7 +24,7 @@ avalanche_node_module = import_module("github.com/kurtosis-tech/avalanche-packag
 # main.star of your Avalanche node + Service package
 def run(plan, args):
     plan.print("Spinning up the Avalanche node")
-    # this will spin up the node and return the output of the Avalanche Network package
-    # any args parsed to your package would get passed down to the Ethereum Network package
+    # this will spin up the node and return the output of the Avalanche package
+    # any args parsed to your package would get passed down to the Avalanche package
     avalanche_node = avalanche_node_module.run(plan, args)
 ```
