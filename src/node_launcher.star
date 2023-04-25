@@ -64,3 +64,5 @@ def launch(plan, node_name, image):
         target_value=200,
         timeout="1m",
     )
+
+    return node_service
