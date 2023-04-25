@@ -17,8 +17,8 @@ def launch(plan, node_name, image):
     # init_datadir_cmd_str = "mkdir -p {0}/".format(NODE_DATA_DIRPATH)
     launch_node_cmd = [
 	    "./avalanchego",
-		"--data-dir=/tmp/data/node1/",
-        "--config-file=/tmp/data/node1/config.json",
+		"--data-dir='/tmp/data/node1/'",
+        "--config-file='/tmp/data/node1/config.json'",
 	]
     launch_node_cmd_str = " ".join(launch_node_cmd)
 
@@ -43,9 +43,7 @@ def launch(plan, node_name, image):
             "RPC": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP")
         },
         entrypoint = ["/bin/sh", "-c"],
-        cmd = [
-            # init_datadir_cmd_str, 
-            launch_node_cmd_str],
+        cmd = [launch_node_cmd_str],
         files = {
             "/tmp/data/node1/": node_cfg_artifact
         },
