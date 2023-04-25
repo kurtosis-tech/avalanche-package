@@ -1,4 +1,4 @@
-DEFAULT_AVALANCHEGO_IMAGE = "avaplatform/avalanchego"
+DEFAULT_AVALANCHEGO_IMAGE = "avaplatform/avalanchego:v1.9.11-Subnet-EVM-master"
 
 def parse_input(input_args):
     result = get_default_input_args()
