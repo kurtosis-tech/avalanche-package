@@ -18,6 +18,7 @@ def launch(plan, node_name, image):
     launch_node_cmd = [
 	    "./avalanchego",
 		"--data-dir=/tmp/data/node1/",
+        "--config-file=/tmp/data/node1/config.json",
 	]
     launch_node_cmd_str = " ".join(launch_node_cmd)
 
