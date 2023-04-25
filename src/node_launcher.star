@@ -3,20 +3,20 @@ static_files = import_module("github.com/kurtosis-tech/avalanche-package/static_
 RPC_PORT_NUM = 9650
 RPC_PORT_ID = "rpc"
 
-ENTRYPOINT_ARGS = ["bash", "-c"]
-
-ABS_PLUGIN_DIRPATH = "/tmp/plugins/"
-ABS_DATA_DIRPATH= "/tmp/data/"
 EXECUTABLE_PATH = "avalanchego"
+ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
+ABS_DATA_DIRPATH= "/tmp/data/"
 
 def launch(plan, node_name, image):
     # Create launch node cmd
     NODE_DATA_DIRPATH =  ABS_DATA_DIRPATH + node_name + "/"
-    NODE_CONFIG_FILE_PATH = NODE_DATA_DIRPATH + "/config.json"
+    NODE_CONFIG_FILEPATH = NODE_DATA_DIRPATH + "config.json"
     
     launch_node_cmd = [
 	    "./" + EXECUTABLE_PATH,
 		"--data-dir=" + NODE_DATA_DIRPATH,
+        "--config-file=" + NODE_CONFIG_FILEPATH,
+        # TODO: add comment about why this is needed
         "--http-host=0.0.0.0",
 	]
     launch_node_cmd_str = " ".join(launch_node_cmd)
@@ -26,7 +26,7 @@ def launch(plan, node_name, image):
     cfg_template_data = {
         "PluginDirPath": ABS_PLUGIN_DIRPATH,
     }
-    node_cfg_artifact = plan.render_templates(
+    node_cfg = plan.render_templates(
         config= {
             "config.json": struct(
                 template = node_cfg_template,
@@ -39,12 +39,12 @@ def launch(plan, node_name, image):
     node_service_config = ServiceConfig(
         image = image,
         ports = {
-            "RPC": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP")
+            "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP")
         },
         entrypoint = ["/bin/sh", "-c"],
         cmd = [launch_node_cmd_str],
         files = {
-            ABS_DATA_DIRPATH: node_cfg_artifact
+            NODE_DATA_DIRPATH: node_cfg,
         },
     )
 
@@ -54,7 +54,7 @@ def launch(plan, node_name, image):
     plan.wait(
         service_name=node_service.name,
         recipe=PostHttpRequestRecipe(
-            port_id="RPC",
+            port_id="rpc",
             endpoint="/ext/health",
             content_type = "application/json",
             body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"health.health\"}"
