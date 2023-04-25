@@ -14,11 +14,10 @@ def launch(plan, node_name, image):
     NODE_DATA_DIRPATH =  DATA_DIRPATH + "/" + node_name
     NODE_CONFIG_FILE_PATH = "/" + NODE_DATA_DIRPATH + "/config.json"
     
-    # init_datadir_cmd_str = "mkdir -p {0}/".format(NODE_DATA_DIRPATH)
     launch_node_cmd = [
 	    "./avalanchego",
 		"--data-dir='/tmp/data/node1/'",
-        "--config-file='/tmp/data/node1/config.json'",
+        "--http-host=0.0.0.0",
 	]
     launch_node_cmd_str = " ".join(launch_node_cmd)
 
@@ -51,4 +50,17 @@ def launch(plan, node_name, image):
 
     node_service = plan.add_service(node_name, node_service_config)
 
-    # add a wait
+    # wait for this node to be healthy
+    plan.wait(
+        service_name=node_service.name,
+        recipe=PostHttpRequestRecipe(
+            port_id="RPC",
+            endpoint="/ext/health",
+            content_type = "application/json",
+            body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"health.health\"}"
+        ),
+        field="code",
+        assertion="==",
+        target_value=200,
+        timeout="1m",
+    )
