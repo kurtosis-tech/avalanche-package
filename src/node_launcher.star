@@ -5,18 +5,18 @@ RPC_PORT_ID = "rpc"
 
 ENTRYPOINT_ARGS = ["bash", "-c"]
 
-PLUGIN_DIRPATH = "plugins"
-DATA_DIRPATH= "data"
+ABS_PLUGIN_DIRPATH = "/tmp/plugins/"
+ABS_DATA_DIRPATH= "/tmp/data/"
+EXECUTABLE_PATH = "avalanchego"
 
 def launch(plan, node_name, image):
     # Create launch node cmd
-    EXECUTABLE_PATH = "avalanchego"
-    NODE_DATA_DIRPATH =  DATA_DIRPATH + "/" + node_name
-    NODE_CONFIG_FILE_PATH = "/" + NODE_DATA_DIRPATH + "/config.json"
+    NODE_DATA_DIRPATH =  ABS_DATA_DIRPATH + node_name + "/"
+    NODE_CONFIG_FILE_PATH = NODE_DATA_DIRPATH + "/config.json"
     
     launch_node_cmd = [
-	    "./avalanchego",
-		"--data-dir='/tmp/data/node1/'",
+	    "./" + EXECUTABLE_PATH,
+		"--data-dir=" + NODE_DATA_DIRPATH,
         "--http-host=0.0.0.0",
 	]
     launch_node_cmd_str = " ".join(launch_node_cmd)
@@ -24,7 +24,7 @@ def launch(plan, node_name, image):
     # Create node config json
     node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
     cfg_template_data = {
-        "PluginDirPath":"/tmp/plugins/"
+        "PluginDirPath": ABS_PLUGIN_DIRPATH,
     }
     node_cfg_artifact = plan.render_templates(
         config= {
@@ -44,7 +44,7 @@ def launch(plan, node_name, image):
         entrypoint = ["/bin/sh", "-c"],
         cmd = [launch_node_cmd_str],
         files = {
-            "/tmp/data/node1/": node_cfg_artifact
+            ABS_DATA_DIRPATH: node_cfg_artifact
         },
     )
 
