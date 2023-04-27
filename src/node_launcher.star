@@ -55,7 +55,7 @@ def launch(plan, node_name_prefix, image, node_count):
         node_service_config = ServiceConfig(
             image = image,
             ports = {
-                "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP")
+                "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait=None)
             },
             entrypoint = ["/bin/sh", "-c"],
             cmd = [launch_node_cmd_str],
