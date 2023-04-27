@@ -9,8 +9,9 @@ ABS_DATA_DIRPATH= "/tmp/data/"
 
 def launch(plan, node_name_prefix, image, node_count):
     # Create launch node cmd
+    plan.print(node_count)
 
-    for index in range(0, node_count):
+    for index in range(0, 2):
 
         node_name = node_name_prefix + str(index)
 
@@ -39,7 +40,7 @@ def launch(plan, node_name_prefix, image, node_count):
                     data = cfg_template_data,
                 ),
             },
-            name = "node-cfg"
+            name = "node-cfg-" + str(index)
         )
 
         node_service_config = ServiceConfig(

@@ -3,7 +3,7 @@ DEFAULT_AVALANCHEGO_IMAGE = "avaplatform/avalanchego:v1.9.11-Subnet-EVM-master"
 def parse_input(input_args):
     result = get_default_input_args()
     for attr in input_args:
-        result[attr] = attr
+        result[attr] = input_args[attr]
     return result
 
 def get_default_input_args():
