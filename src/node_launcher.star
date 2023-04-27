@@ -86,7 +86,7 @@ def launch(plan, node_name_prefix, image, node_count):
         )
 
         bootstrap_ips.append("{0}:{1}".format(node_service.ip_address, RPC_PORT_NUM))
-        bootstrap_ids.append(response["nodeID"])
+        bootstrap_ids.append(response["extract.nodeID"])
         output_services.append(node_service)
 
     return output_services
