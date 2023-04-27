@@ -11,7 +11,9 @@ def launch(plan, node_name_prefix, image, node_count):
     # Create launch node cmd
     plan.print(node_count)
 
-    for index in range(0, 2):
+    bootstrap_ips = []
+
+    for index in range(0, node_count):        
 
         node_name = node_name_prefix + str(index)
 
@@ -27,6 +29,9 @@ def launch(plan, node_name_prefix, image, node_count):
             "--http-host=0.0.0.0",
         ]
         launch_node_cmd_str = " ".join(launch_node_cmd)
+
+        if bootstrap_ips:
+            launch_node_cmd.append("--bootstrap-ips=", ",".join(bootstrap_ips))
 
         # Create node config json
         node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
@@ -72,5 +77,7 @@ def launch(plan, node_name_prefix, image, node_count):
             target_value=200,
             timeout="1m",
         )
+
+        bootstrap_ips.append("{0}:{1}".format(node_service.ip_address, RPC_PORT_NUM))
 
     return node_service
