@@ -31,7 +31,7 @@ def launch(plan, node_name_prefix, image, node_count):
         launch_node_cmd_str = " ".join(launch_node_cmd)
 
         if bootstrap_ips:
-            launch_node_cmd.append("--bootstrap-ips=", ",".join(bootstrap_ips))
+            launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
 
         # Create node config json
         node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
