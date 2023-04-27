@@ -9,9 +9,10 @@ def parse_input(input_args):
 def get_default_input_args():
     default_node_cfg = get_default_node_cfg()
     return {
-        "node_name": "node1",
+        "node_name_prefix": "node-",
         "avalanchego_image": DEFAULT_AVALANCHEGO_IMAGE,
         "node_config": default_node_cfg,
+        "node_count": 1
     }
 
 def get_default_node_cfg():
