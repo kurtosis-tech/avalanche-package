@@ -74,7 +74,7 @@ def launch(plan, node_name_prefix, image, node_count):
                 port_id="rpc",
                 endpoint="/ext/info",
                 content_type = "application/json",
-                body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"info.getNodeID\"}"
+                body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"info.getNodeID\"}",
                 extract = {
                     "nodeID": ".result.nodeID",
                 }
