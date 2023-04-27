@@ -12,6 +12,7 @@ def launch(plan, node_name_prefix, image, node_count):
     plan.print(node_count)
 
     bootstrap_ips = []
+    bootstrap_ids = []
     output_services = []
 
     for index in range(0, node_count):        
@@ -32,6 +33,7 @@ def launch(plan, node_name_prefix, image, node_count):
 
         if bootstrap_ips:
             launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
+            launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
         launch_node_cmd_str = " ".join(launch_node_cmd)
 
@@ -66,13 +68,16 @@ def launch(plan, node_name_prefix, image, node_count):
         node_service = plan.add_service(node_name, node_service_config)
 
         # wait for this node to be healthy
-        plan.wait(
+        response = plan.wait(
             service_name=node_service.name,
             recipe=PostHttpRequestRecipe(
                 port_id="rpc",
-                endpoint="/ext/health",
+                endpoint="/ext/info",
                 content_type = "application/json",
-                body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"health.health\"}"
+                body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"info.getNodeID\"}"
+                extract = {
+                    "nodeID": ".result.nodeID",
+                }
             ),
             field="code",
             assertion="==",
@@ -81,6 +86,7 @@ def launch(plan, node_name_prefix, image, node_count):
         )
 
         bootstrap_ips.append("{0}:{1}".format(node_service.ip_address, RPC_PORT_NUM))
+        bootstrap_ids.append(response["nodeID"])
         output_services.append(node_service)
 
     return output_services
