@@ -31,7 +31,7 @@ You can configure this package using the following JSON structure:
 For example:
 Running:
 ```bash
-kurtosis run github.com/kurtosis-tech/avalanche-package '{"node_count":"3"}'
+kurtosis run github.com/kurtosis-tech/avalanche-package '{"node_count":3}'
 ```
 will spin up 3 non-stacking Avalanche nodes locally.
 
