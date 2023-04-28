@@ -1,5 +1,5 @@
-Avalanche Package
-===========================
+:small_red_triangle: Avalanche Package
+======================================
 
 This is a [Kurtosis package](https://docs.kurtosis.com/concepts-reference/packages) that spins up a non-staking Avalanche node. You may optionally specify the number of nodes you wish to start locally with a simple `arg` passed in at execution time.
 
