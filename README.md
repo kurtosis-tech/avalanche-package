@@ -1,7 +1,7 @@
 :small_red_triangle: Avalanche Package
 ======================================
 
-This is a [Kurtosis package](https://docs.kurtosis.com/concepts-reference/packages) that spins up a non-staking Avalanche node. You may optionally specify the number of nodes you wish to start locally with a simple `arg` passed in at execution time. The genesis file used to set the initial configuration of the local network is the same one used in Avalanche Go [here][avalanchego-gen-file] with a chainID of `43112` and a pre-funded Ethereum address with which you may use to locally deploy smart contracts from.
+This is a [Kurtosis package](https://docs.kurtosis.com/concepts-reference/packages) that spins up a non-staking Avalanche node. You may optionally specify the number of nodes you wish to start locally with a simple `arg` passed in at execution time. The genesis file used to set the initial configuration of the local network is the same one used in Avalanche Go [here][avalanchego-gen-file] with a chainID of `43112` and a pre-funded Ethereum address with which you may use to locally deploy smart contracts from to the C-Chain on the primary network.
 
 Run this package
 ----------------
