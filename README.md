@@ -1,7 +1,7 @@
 :small_red_triangle: Avalanche Package
 ======================================
 
-This is a [Kurtosis package](https://docs.kurtosis.com/concepts-reference/packages) that spins up a non-staking Avalanche node. You may optionally specify the number of nodes you wish to start locally with a simple `arg` passed in at execution time.
+This is a [Kurtosis package](https://docs.kurtosis.com/concepts-reference/packages) that spins up a non-staking Avalanche node. You may optionally specify the number of nodes you wish to start locally with a simple `arg` passed in at execution time. The genesis file used to set the initial configuration of the local network is the same one used in Avalanche Go [here][avalanchego-gen-file] with a chainID of `43112` and a pre-funded Ethereum address with which you may use to locally deploy smart contracts from.
 
 Run this package
 ----------------
@@ -62,7 +62,7 @@ Develop on this package
 
 Deploy a smart contract locally
 -------------------------------
-You may deploy smart contracts to the C-Chain of the local Avalanche network with Hardhat. To do so, simply follow the instructions in the [Avalanche Developer Docs][avalanche-hardhat-deploy] but replace the port in the local network URL field in `hardhat.config.ts` with the one mapped by Kurtosis from the node's container to your local machine. For example, if your node is mapped to `127.0.0.1:60917`, then `YOUR_PORT` will be `60917`. 
+You may deploy smart contracts to the C-Chain of the local Avalanche network with Hardhat. To do so, simply follow the instructions in the [Avalanche Developer Docs][avalanche-hardhat-deploy] but replace the port in the local network `url` field in the `hardhat.config.ts` file with the one mapped by Kurtosis from the node's container to your local machine. For example, if your node is mapped to `127.0.0.1:60917`, then `YOUR_PORT` will be `60917`. 
 
 Example:
 ```typescript
@@ -93,3 +93,4 @@ export_default {
 [install-kurtosis]: https://docs.kurtosis.com/install
 [enclaves-reference]: https://docs.kurtosis.com/concepts-reference/enclaves
 [avalanche-hardhat-deploy]: https://docs.avax.network/dapps/developer-toolchains/using-hardhat-with-the-avalanche-c-chain
+[avalanchego-gen-file]: https://github.com/ava-labs/avalanchego/blob/master/genesis/genesis_local.json
