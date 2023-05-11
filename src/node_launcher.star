@@ -8,9 +8,6 @@ ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 ABS_DATA_DIRPATH= "/tmp/data/"
 
 def launch(plan, node_name_prefix, image, node_count, expose_9650_if_one_node):
-    # Create launch node cmd
-    plan.print(node_count)
-
     bootstrap_ips = []
     bootstrap_ids = []
     output_services = []
@@ -52,7 +49,7 @@ def launch(plan, node_name_prefix, image, node_count, expose_9650_if_one_node):
             name = "node-cfg-" + str(index)
         )
 
-        public_ports = None
+        public_ports = {}
         if index == 0 and node_count == 1 and expose_9650_if_one_node:
             public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait=None)
 
