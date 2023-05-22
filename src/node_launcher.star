@@ -2,6 +2,8 @@ static_files = import_module("github.com/kurtosis-tech/avalanche-package/static_
 
 RPC_PORT_NUM = 9650
 RPC_PORT_ID = "rpc"
+STAKING_PORT_NUM = 9651
+STAKING_PORT_ID = "staking"
 
 EXECUTABLE_PATH = "avalanchego"
 ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
@@ -24,8 +26,10 @@ def launch(plan, node_name_prefix, image, node_count, expose_9650_if_one_node):
             "--data-dir=" + node_data_dirpath
     ,
             "--config-file=" + node_config_filepath,
-            # TODO: add comment about why this is needed
+            # this is needed so we can talk from localhost
             "--http-host=0.0.0.0",
+            "--staking-port=" + STAKING_PORT_NUM+index*2,
+            "--http-port="+ RPC_PORT_NUM+index*2
         ]
 
         if bootstrap_ips:
@@ -51,12 +55,14 @@ def launch(plan, node_name_prefix, image, node_count, expose_9650_if_one_node):
 
         public_ports = {}
         if index == 0 and node_count == 1 and expose_9650_if_one_node:
-            public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait=None)
+            public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP", wait=None)
+            public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP", wait=None)
 
         node_service_config = ServiceConfig(
             image = image,
             ports = {
-                "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait=None)
+                "rpc": PortSpec(number = RPC_PORT_NUM + index * 2, transport_protocol = "TCP", wait=None),
+                "staking": PortSpec(number = STAKING_PORT_NUM + index * 2, transport_protocol = "TCP", wait=None)
             },
             entrypoint = ["/bin/sh", "-c"],
             cmd = [launch_node_cmd_str],
