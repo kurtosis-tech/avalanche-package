@@ -54,7 +54,7 @@ def launch(plan, node_name_prefix, image, node_count, expose_9650_if_one_node):
         )
 
         public_ports = {}
-        if index == 0 and node_count == 1 and expose_9650_if_one_node:
+        if expose_9650_if_one_node:
             public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP", wait=None)
             public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP", wait=None)
 
