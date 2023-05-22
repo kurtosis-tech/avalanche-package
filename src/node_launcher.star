@@ -28,8 +28,8 @@ def launch(plan, node_name_prefix, image, node_count, expose_9650_if_one_node):
             "--config-file=" + node_config_filepath,
             # this is needed so we can talk from localhost
             "--http-host=0.0.0.0",
-            "--staking-port=" + str(STAKING_PORT_NUM+index*2),
-            "--http-port="+ str(RPC_PORT_NUM+index*2),
+            "--staking-port=" + str(STAKING_PORT_NUM),
+            "--http-port="+ str(RPC_PORT_NUM),
         ]
 
         if bootstrap_ips:
@@ -61,8 +61,8 @@ def launch(plan, node_name_prefix, image, node_count, expose_9650_if_one_node):
         node_service_config = ServiceConfig(
             image = image,
             ports = {
-                "rpc": PortSpec(number = RPC_PORT_NUM + index * 2, transport_protocol = "TCP", wait=None),
-                "staking": PortSpec(number = STAKING_PORT_NUM + index * 2, transport_protocol = "TCP", wait=None)
+                "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait=None),
+                "staking": PortSpec(number = STAKING_PORT_NUM, transport_protocol = "TCP", wait=None)
             },
             entrypoint = ["/bin/sh", "-c"],
             cmd = [launch_node_cmd_str],
