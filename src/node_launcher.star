@@ -28,8 +28,8 @@ def launch(plan, node_name_prefix, image, node_count, expose_9650_if_one_node):
             "--config-file=" + node_config_filepath,
             # this is needed so we can talk from localhost
             "--http-host=0.0.0.0",
-            "--staking-port=" + STAKING_PORT_NUM+index*2,
-            "--http-port="+ RPC_PORT_NUM+index*2
+            "--staking-port=" + str(STAKING_PORT_NUM+index*2),
+            "--http-port="+ str(RPC_PORT_NUM+index*2),
         ]
 
         if bootstrap_ips:
