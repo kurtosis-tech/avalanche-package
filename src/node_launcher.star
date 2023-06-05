@@ -1,12 +1,9 @@
-static_files = import_module("github.com/kurtosis-tech/avalanche-package/static_files/static_files.star")
-
 RPC_PORT_NUM = 9650
 RPC_PORT_ID = "rpc"
 STAKING_PORT_NUM = 9651
 STAKING_PORT_ID = "staking"
 
 EXECUTABLE_PATH = "avalanchego"
-ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 ABS_DATA_DIRPATH= "/tmp/data/"
 NODE_NAME_PREFIX = "node-"
 
@@ -24,8 +21,8 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 
         launch_node_cmd = [
             "./" + EXECUTABLE_PATH,
-            "--data-dir=" + node_data_dirpath
-    ,
+            "--genesis=/tmp/data/genesis.json", 
+            "--data-dir=" + node_data_dirpath,
             "--config-file=" + node_config_filepath,
             # this is needed so we can talk from localhost
             "--http-host=0.0.0.0",
@@ -38,21 +35,6 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
         launch_node_cmd_str = " ".join(launch_node_cmd)
-
-        # Create node config json
-        node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
-        cfg_template_data = {
-            "PluginDirPath": ABS_PLUGIN_DIRPATH,
-        }
-        node_cfg = plan.render_templates(
-            config= {
-                "config.json": struct(
-                    template = node_cfg_template,
-                    data = cfg_template_data,
-                ),
-            },
-            name = "node-cfg-" + str(index)
-        )
 
         public_ports = {}
         if expose_9650_if_one_node:
@@ -68,7 +50,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             entrypoint = ["/bin/sh", "-c"],
             cmd = [launch_node_cmd_str],
             files = {
-                node_data_dirpath: node_cfg,
+                ABS_DATA_DIRPATH: genesis,
             },
             public_ports = public_ports,
         )

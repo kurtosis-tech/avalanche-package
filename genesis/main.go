@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	stakingNodeKeyPath  = "/tmp/data/staking/node-%d/staker.key"
-	stakingNodeCertPath = "/tmp/data/staking/node-%d/staker.cert"
+	stakingNodeKeyPath  = "/tmp/data/node-%d/staking/staker.key"
+	stakingNodeCertPath = "/tmp/data/node-%d/staking/staker.cert"
 	genesisFile         = "/tmp/data/genesis.json"
 	numNodeArgIndex     = 2
 	networkIdIndex      = 1
