@@ -6,6 +6,7 @@ import (
 	"github.com/ava-labs/avalanchego/genesis"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/staking"
+	"github.com/ava-labs/avalanchego/utils/perms"
 	"os"
 	"strconv"
 )
@@ -13,6 +14,7 @@ import (
 const (
 	stakingNodeKeyPath  = "/tmp/data/staking/node-%d/staker.key"
 	stakingNodeCertPath = "/tmp/data/staking/node-%d/staker.cert"
+	genesisFile         = "/tmp/data/genesis.json"
 	numNodeArgIndex     = 2
 	networkIdIndex      = 1
 	nonZeroExitCode     = 1
@@ -80,7 +82,9 @@ func main() {
 	}
 
 	unparsedConfig.InitialStakers = initialStakers
-	unparsedConfig.Message = "do or do not; there is no try"
 	genesisJson, _ := json.Marshal(unparsedConfig)
-	fmt.Println(string(genesisJson))
+
+	os.WriteFile(genesisFile, genesisJson, perms.ReadOnly)
+
+	fmt.Printf("generated genesis data at '%v'\n", genesisFile)
 }
