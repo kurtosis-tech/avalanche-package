@@ -63,22 +63,24 @@ func main() {
 
 	fmt.Println(genesisValidators)
 
-	var initialStakers []genesis.Staker
+	genesisConfig := genesis.GetConfig(uint32(networkId))
+	unparsedConfig, _ := genesisConfig.Unparse()
+
+	var initialStakers []genesis.UnparsedStaker
 	basicDelegationFee := 62500
-	shortId, _ := ids.ShortFromString("X-local18jma8ppw3nhx5r4ap8clazz0dps7rv5u00z96u")
+	// give staking reward to random address
 	for _, nodeId := range genesisValidators {
-		staker := genesis.Staker{
+		staker := genesis.UnparsedStaker{
 			NodeID:        nodeId,
-			RewardAddress: shortId,
+			RewardAddress: "X-custom18jma8ppw3nhx5r4ap8clazz0dps7rv5u9xde7p",
 			DelegationFee: uint32(basicDelegationFee),
 		}
 		basicDelegationFee = basicDelegationFee * 2
 		initialStakers = append(initialStakers, staker)
 	}
 
-	genesisConfig := genesis.GetConfig(uint32(networkId))
-
-	genesisConfig.InitialStakers = initialStakers
-	genesisJson, err := json.Marshal(genesisConfig)
+	unparsedConfig.InitialStakers = initialStakers
+	unparsedConfig.Message = "do or do not; there is no try"
+	genesisJson, _ := json.Marshal(unparsedConfig)
 	fmt.Println(string(genesisJson))
 }
