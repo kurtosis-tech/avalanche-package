@@ -34,14 +34,6 @@ def create_genesis(plan, network_id, num_nodes):
         )
     )
 
-    for index in range(0, num_nodes):
-        plan.exec(
-            service_name = "genesis",
-            recipe = ExecRecipe(
-                command = ["cp", "/tmp/config/config.json", "/tmp/data/node-{0}/config.json".format(index)]
-            )
-        )
-
     plan.exec(
         service_name="genesis",
         recipe=ExecRecipe(
@@ -49,6 +41,14 @@ def create_genesis(plan, network_id, num_nodes):
                 "/bin/sh", "-c", "cd /tmp/genesis && go run main.go {0} {1}".format(network_id, num_nodes)]
         )
     )
+
+    for index in range(0, num_nodes):
+        plan.exec(
+            service_name = "genesis",
+            recipe = ExecRecipe(
+                command = ["cp", "/tmp/config/config.json", "/tmp/data/node-{0}/config.json".format(index)]
+            )
+        )
 
     genesis_data = plan.store_service_files(
         service_name = "genesis",
