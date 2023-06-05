@@ -7,6 +7,9 @@ EXECUTABLE_PATH = "avalanchego"
 ABS_DATA_DIRPATH= "/tmp/data/"
 NODE_NAME_PREFIX = "node-"
 
+NODE_ID_PATH = "/tmp/data/node-{0}/node_id.txt"
+GENESIS_SERVICE_NAME = "genesis"
+
 def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
     bootstrap_ips = []
     bootstrap_ids = []
@@ -58,9 +61,22 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 
         nodes[node_name] = node_service_config
 
-        bootstrap_ips.append("{0}:{1}".format(node_service.hostname, STAKING_PORT_NUM))
-        bootstrap_ids.append(response["extract.nodeID"])
+        bootstrap_ips.append("{0}:{1}".format(node_name, STAKING_PORT_NUM))
+        bootstrap_id_file = NODE_ID_PATH.format(index)
+        bootstrap_id = read_file_from_service(plan, GENESIS_SERVICE_NAME, bootstrap_id_file)
+        bootstrap_ids.append(bootstrap_id)
 
     services = plan.add_services(nodes)
 
     return services
+
+
+# reads the given file in service without the new line
+def read_file_from_service(plan, service_name, filename):
+    output = plan.exec(
+        service_name = service_name,
+        recipe = ExecRecipe(
+            command = ["/bin/sh", "-c", "cat {}".format(filename)]
+        )
+    )
+    return output["output"]
