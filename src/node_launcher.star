@@ -8,15 +8,16 @@ STAKING_PORT_ID = "staking"
 EXECUTABLE_PATH = "avalanchego"
 ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 ABS_DATA_DIRPATH= "/tmp/data/"
+NODE_NAME_PREFIX = "node-"
 
-def launch(plan, node_name_prefix, image, node_count, expose_9650_if_one_node):
+def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
     bootstrap_ips = []
     bootstrap_ids = []
     output_services = []
 
     for index in range(0, node_count):        
 
-        node_name = node_name_prefix + str(index)
+        node_name = NODE_NAME_PREFIX + str(index)
 
         node_data_dirpath =  ABS_DATA_DIRPATH + node_name + "/"
         node_config_filepath = node_data_dirpath + "config.json"
