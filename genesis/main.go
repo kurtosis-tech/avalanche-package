@@ -91,6 +91,7 @@ func main() {
 
 	os.WriteFile(genesisFile, genesisJson, perms.ReadOnly)
 
+	// TODO write this to a file and use these IP addresses
 	ipAddresses, err := getNextIpAddresses("lo0", numNodes)
 	fmt.Println(ipAddresses)
 	fmt.Println(err)
