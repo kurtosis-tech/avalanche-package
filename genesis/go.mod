@@ -1,4 +1,4 @@
-module github.com/kurtosis-tech/avalanche-package/go-utils
+module github.com/kurtosis-tech/avalanche-package/genesis
 
 go 1.19
 
