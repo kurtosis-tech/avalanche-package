@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/ava-labs/avalanche-network-runner/network"
+	"github.com/ava-labs/avalanchego/genesis"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/staking"
+	"math/big"
 	"os"
 	"strconv"
 )
@@ -29,10 +32,16 @@ func main() {
 		os.Exit(nonZeroExitCode)
 	}
 
-	networkId := os.Args[networkIdIndex]
+	networkIdArg := os.Args[networkIdIndex]
+	networkId, err := strconv.Atoi(networkIdArg)
+	if err != nil {
+		fmt.Printf("An error occurred while converting networkId arg to integer: %v\n", err)
+		os.Exit(nonZeroExitCode)
+	}
 
 	fmt.Printf("Have a total of '%v' nodes to generate and network id '%v'\n", numNodes, networkId)
-	var nodeIds []ids.NodeID
+	// Every Node is a validator node for now
+	var genesisValidators []ids.NodeID
 
 	for index := 0; index < numNodes; index++ {
 		keyPath := fmt.Sprintf(stakingNodeKeyPath, index)
@@ -50,8 +59,25 @@ func main() {
 		}
 		nodeId := ids.NodeIDFromCert(cert.Leaf)
 		fmt.Printf("node '%v' has node id '%v'\n", index, nodeId)
-		nodeIds = append(nodeIds, nodeId)
+		genesisValidators = append(genesisValidators, nodeId)
 	}
 
-	fmt.Println(nodeIds)
+	fmt.Println(genesisValidators)
+
+	//balance := 0x295BE96E64066972000000
+	value := new(big.Int)
+	value.SetString("0x295BE96E64066972000000", 0)
+	var cChainBalances []network.AddrAndBalance
+	ewoqAddrAndBalance := network.AddrAndBalance{
+		Addr:    genesis.EWOQKey.Address(),
+		Balance: value,
+	}
+	cChainBalances = append(cChainBalances, ewoqAddrAndBalance)
+
+	jsonBytes, err := network.NewAvalancheGoGenesis(uint32(networkId), nil, cChainBalances, genesisValidators)
+	if err != nil {
+		fmt.Printf("an error occurred while generating genesis.json: %v", err)
+		os.Exit(nonZeroExitCode)
+	}
+	fmt.Println(string(jsonBytes))
 }
