@@ -21,7 +21,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 
         launch_node_cmd = [
             "./" + EXECUTABLE_PATH,
-            "--genesis=/tmp/data/genesis.json", 
+            "--genesis-file=/tmp/data/genesis.json", 
             "--data-dir=" + node_data_dirpath,
             "--config-file=" + node_config_filepath,
             "--http-host=0.0.0.0",
