@@ -17,7 +17,7 @@ def get_default_input_args():
 
 def get_default_node_cfg():
     return {
-        "network-id": "local",
+        "network-id": "1337",
         "staking-enabled": False,
         "health-check-frequency": "5s",
     }
