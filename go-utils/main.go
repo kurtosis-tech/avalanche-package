@@ -11,14 +11,14 @@ import (
 const (
 	stakingNodeKeyPath  = "/tmp/data/staking/node-%d/staker.key"
 	stakingNodeCertPath = "/tmp/data/staking/node-%d/staker.cert"
-	numNodeArgIndex     = 1
-	networkIdIndex      = 2
+	numNodeArgIndex     = 2
+	networkIdIndex      = 1
 	nonZeroExitCode     = 1
 )
 
 func main() {
 	if len(os.Args) < networkIdIndex {
-		fmt.Printf("Need at least 2 more args apart from program name got '%v' total", len(os.Args))
+		fmt.Printf("Need at least 2 more args apart from program name got '%v' total\n", len(os.Args))
 		os.Exit(nonZeroExitCode)
 	}
 
@@ -39,17 +39,17 @@ func main() {
 		certPath := fmt.Sprintf(stakingNodeCertPath, index)
 		err = staking.InitNodeStakingKeyPair(keyPath, certPath)
 		if err != nil {
-			fmt.Printf("An error occurred while generating keys for node %v: %v\n", index+1, err)
+			fmt.Printf("An error occurred while generating keys for node %v: %v\n", index, err)
 			os.Exit(nonZeroExitCode)
 		}
-		fmt.Printf("Gnerated key and cert for node '%v' at '%v', '%v\n", index+1, keyPath, certPath)
+		fmt.Printf("Gnerated key and cert for node '%v' at '%v', '%v\n", index, keyPath, certPath)
 		cert, err := staking.LoadTLSCertFromFiles(keyPath, certPath)
 		if err != nil {
-			fmt.Printf("an error occurred while loading cert pair for node '%v': %v\n", index+1, err)
+			fmt.Printf("an error occurred while loading cert pair for node '%v': %v\n", index, err)
 			os.Exit(nonZeroExitCode)
 		}
 		nodeId := ids.NodeIDFromCert(cert.Leaf)
-		fmt.Printf("node '%v' has node id '%v'\n", nodeId, nodeId)
+		fmt.Printf("node '%v' has node id '%v'\n", index, nodeId)
 		nodeIds = append(nodeIds, nodeId)
 	}
 
