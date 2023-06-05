@@ -50,7 +50,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             entrypoint = ["/bin/sh", "-c"],
             cmd = [launch_node_cmd_str],
             files = {
-                ABS_DATA_DIRPATH: genesis,
+                "/tmp/": genesis,
             },
             public_ports = public_ports,
         )
