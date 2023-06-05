@@ -72,7 +72,7 @@ func main() {
 	for _, nodeId := range genesisValidators {
 		staker := genesis.UnparsedStaker{
 			NodeID:        nodeId,
-			RewardAddress: "X-custom18jma8ppw3nhx5r4ap8clazz0dps7rv5u9xde7p",
+			RewardAddress: unparsedConfig.Allocations[1].AVAXAddr,
 			DelegationFee: uint32(basicDelegationFee),
 		}
 		basicDelegationFee = basicDelegationFee * 2
