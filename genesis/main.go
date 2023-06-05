@@ -17,12 +17,13 @@ const (
 	genesisFile         = "/tmp/data/genesis.json"
 	numNodeArgIndex     = 2
 	networkIdIndex      = 1
+	minRequiredArgs     = numNodeArgIndex + 1
 	nonZeroExitCode     = 1
 )
 
 func main() {
-	if len(os.Args) < networkIdIndex {
-		fmt.Printf("Need at least 2 more args apart from program name got '%v' total\n", len(os.Args))
+	if len(os.Args) < minRequiredArgs {
+		fmt.Printf("Need at least %v args got '%v' total\n", minRequiredArgs, len(os.Args))
 		os.Exit(nonZeroExitCode)
 	}
 
