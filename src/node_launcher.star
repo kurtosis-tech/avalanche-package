@@ -92,7 +92,7 @@ def launch(plan, node_name_prefix, image, node_count, expose_9650_if_one_node):
             timeout="1m",
         )
 
-        bootstrap_ips.append("{0}:{1}".format(node_service.ip_address, RPC_PORT_NUM))
+        bootstrap_ips.append("{0}:{1}".format(node_service.ip_address, STAKING_PORT_NUM))
         bootstrap_ids.append(response["extract.nodeID"])
         output_services.append(node_service)
 
