@@ -2,13 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/ava-labs/avalanchego/genesis"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/staking"
 	"github.com/ava-labs/avalanchego/utils/perms"
-	"net"
 	"os"
 	"strconv"
 )
@@ -90,44 +88,5 @@ func main() {
 	genesisJson, _ := json.Marshal(unparsedConfig)
 
 	os.WriteFile(genesisFile, genesisJson, perms.ReadOnly)
-
-	// TODO write this to a file and use these IP addresses
-	ipAddresses, err := getNextIpAddresses("lo0", numNodes)
-	fmt.Println(ipAddresses)
-	fmt.Println(err)
-
 	fmt.Printf("generated genesis data at '%v'\n", genesisFile)
-}
-
-// this is a hack to pre populate bootstrap ip addresses
-func getNextIpAddresses(interfaceName string, numNodes int) (addr []string, err error) {
-	var (
-		ief      *net.Interface
-		addrs    []net.Addr
-		ipv4Addr net.IP
-	)
-	if ief, err = net.InterfaceByName(interfaceName); err != nil { // get interface
-		return
-	}
-	if addrs, err = ief.Addrs(); err != nil { // get addresses
-		return
-	}
-	for _, addr := range addrs { // get ipv4 address
-		if ipv4Addr = addr.(*net.IPNet).IP.To4(); ipv4Addr != nil {
-			break
-		}
-	}
-	if ipv4Addr == nil {
-		return nil, errors.New(fmt.Sprintf("interface %s don't have an ipv4 address\n", interfaceName))
-	}
-
-	var addresses []string
-	ip := ipv4Addr.To4()
-	ip = ip.Mask(ip.DefaultMask())
-	for index := 0; index < numNodes; index++ {
-		ip[3]++
-		addresses = append(addresses, ip.String())
-	}
-
-	return addresses, nil
 }

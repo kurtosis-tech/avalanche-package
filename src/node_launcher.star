@@ -15,8 +15,6 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
     bootstrap_ids = []
     output_services = []
 
-    nodes = {}
-
     for index in range(0, node_count):        
 
         node_name = NODE_NAME_PREFIX + str(index)
@@ -59,16 +57,19 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             public_ports = public_ports,
         )
 
-        nodes[node_name] = node_service_config
+        node_service = plan.add_service(
+            name = node_name,
+            config = node_service_config,
+        )
 
-        bootstrap_ips.append("{0}:{1}".format(node_name, STAKING_PORT_NUM))
+        bootstrap_ips.append("{0}:{1}".format(node_service.ip_address, STAKING_PORT_NUM))
         bootstrap_id_file = NODE_ID_PATH.format(index)
         bootstrap_id = read_file_from_service(plan, GENESIS_SERVICE_NAME, bootstrap_id_file)
         bootstrap_ids.append(bootstrap_id)
 
-    services = plan.add_services(nodes)
+        output_services.append(node_service)
 
-    return services
+    return output_services
 
 
 # reads the given file in service without the new line
