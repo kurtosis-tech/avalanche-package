@@ -1,4 +1,4 @@
-GO_IMG = "golang:alpine"
+GO_IMG = "golang:1.20.4"
 
 STAKING_KEYS_PATH = "/tmp/data/staking/node-{0}/staker.key"
 STAKING_CERT_PATH = "/tmp/data/staking/node-{0}/staker.cert"
