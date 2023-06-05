@@ -1,12 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/ava-labs/avalanche-network-runner/network"
 	"github.com/ava-labs/avalanchego/genesis"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/staking"
-	"math/big"
 	"os"
 	"strconv"
 )
@@ -64,20 +63,22 @@ func main() {
 
 	fmt.Println(genesisValidators)
 
-	//balance := 0x295BE96E64066972000000
-	value := new(big.Int)
-	value.SetString("0x295BE96E64066972000000", 0)
-	var cChainBalances []network.AddrAndBalance
-	ewoqAddrAndBalance := network.AddrAndBalance{
-		Addr:    genesis.EWOQKey.Address(),
-		Balance: value,
+	var initialStakers []genesis.Staker
+	basicDelegationFee := 62500
+	shortId, _ := ids.ShortFromString("X-local18jma8ppw3nhx5r4ap8clazz0dps7rv5u00z96u")
+	for _, nodeId := range genesisValidators {
+		staker := genesis.Staker{
+			NodeID:        nodeId,
+			RewardAddress: shortId,
+			DelegationFee: uint32(basicDelegationFee),
+		}
+		basicDelegationFee = basicDelegationFee * 2
+		initialStakers = append(initialStakers, staker)
 	}
-	cChainBalances = append(cChainBalances, ewoqAddrAndBalance)
 
-	jsonBytes, err := network.NewAvalancheGoGenesis(uint32(networkId), nil, cChainBalances, genesisValidators)
-	if err != nil {
-		fmt.Printf("an error occurred while generating genesis.json: %v", err)
-		os.Exit(nonZeroExitCode)
-	}
-	fmt.Println(string(jsonBytes))
+	genesisConfig := genesis.GetConfig(uint32(networkId))
+
+	genesisConfig.InitialStakers = initialStakers
+	genesisJson, err := json.Marshal(genesisConfig)
+	fmt.Println(string(genesisJson))
 }
