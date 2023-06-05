@@ -14,6 +14,7 @@ import (
 const (
 	stakingNodeKeyPath  = "/tmp/data/node-%d/staking/staker.key"
 	stakingNodeCertPath = "/tmp/data/node-%d/staking/staker.crt"
+	nodeIdPath          = "/tmp/data/node-%d/node_id.txt"
 	genesisFile         = "/tmp/data/genesis.json"
 	numNodeArgIndex     = 2
 	networkIdIndex      = 1
@@ -60,6 +61,7 @@ func main() {
 			os.Exit(nonZeroExitCode)
 		}
 		nodeId := ids.NodeIDFromCert(cert.Leaf)
+		os.WriteFile(fmt.Sprintf(nodeIdPath, index), []byte(nodeId.String()), perms.ReadOnly)
 		fmt.Printf("node '%v' has node id '%v'\n", index, nodeId)
 		genesisValidators = append(genesisValidators, nodeId)
 	}

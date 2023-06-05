@@ -12,6 +12,8 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
     bootstrap_ids = []
     output_services = []
 
+    nodes = {}
+
     for index in range(0, node_count):        
 
         node_name = NODE_NAME_PREFIX + str(index)
@@ -54,28 +56,11 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             public_ports = public_ports,
         )
 
-        node_service = plan.add_service(node_name, node_service_config)
+        nodes[node_name] = node_service_config
 
-        # wait for this node to be healthy
-        response = plan.wait(
-            service_name=node_service.name,
-            recipe=PostHttpRequestRecipe(
-                port_id="rpc",
-                endpoint="/ext/info",
-                content_type = "application/json",
-                body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"info.getNodeID\"}",
-                extract = {
-                    "nodeID": ".result.nodeID",
-                }
-            ),
-            field="code",
-            assertion="==",
-            target_value=200,
-            timeout="1m",
-        )
-
-        bootstrap_ips.append("{0}:{1}".format(node_service.ip_address, STAKING_PORT_NUM))
+        bootstrap_ips.append("{0}:{1}".format(node_service.hostname, STAKING_PORT_NUM))
         bootstrap_ids.append(response["extract.nodeID"])
-        output_services.append(node_service)
 
-    return output_services
+    services = plan.add_services(nodes)
+
+    return services
