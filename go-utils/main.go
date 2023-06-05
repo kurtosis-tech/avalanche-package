@@ -63,7 +63,7 @@ func main() {
 		genesisValidators = append(genesisValidators, nodeId)
 	}
 
-	fmt.Println(genesisValidators)
+	fmt.Printf("generated '%v' nodes", len(genesisValidators))
 
 	genesisConfig := genesis.GetConfig(uint32(networkId))
 	unparsedConfig, _ := genesisConfig.Unparse()
