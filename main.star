@@ -1,5 +1,5 @@
 node_launcher = import_module("github.com/kurtosis-tech/avalanche-package/src/node_launcher.star")
-node_launcher = import_module("github.com/kurtosis-tech/avalanche-package/src/genesis_generator.star")
+genesis_generator = import_module("github.com/kurtosis-tech/avalanche-package/src/genesis_generator.star")
 input_parser = import_module("github.com/kurtosis-tech/avalanche-package/src/package_io/input_parser.star")
 
 def run(plan, args):
