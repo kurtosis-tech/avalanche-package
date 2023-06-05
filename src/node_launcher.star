@@ -24,7 +24,6 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             "--genesis=/tmp/data/genesis.json", 
             "--data-dir=" + node_data_dirpath,
             "--config-file=" + node_config_filepath,
-            # this is needed so we can talk from localhost
             "--http-host=0.0.0.0",
             "--staking-port=" + str(STAKING_PORT_NUM),
             "--http-port="+ str(RPC_PORT_NUM),
@@ -38,14 +37,14 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 
         public_ports = {}
         if expose_9650_if_one_node:
-            public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP", wait=None)
-            public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP", wait=None)
+            public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP")
+            public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP")
 
         node_service_config = ServiceConfig(
             image = image,
             ports = {
-                "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait=None),
-                "staking": PortSpec(number = STAKING_PORT_NUM, transport_protocol = "TCP", wait=None)
+                "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP"),
+                "staking": PortSpec(number = STAKING_PORT_NUM, transport_protocol = "TCP")
             },
             entrypoint = ["/bin/sh", "-c"],
             cmd = [launch_node_cmd_str],
