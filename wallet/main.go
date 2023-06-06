@@ -38,10 +38,11 @@ const (
 	stakeWeight = uint64(200)
 
 	// outputs
+	parentPath         = "/tmp/subnet/"
 	chainIdOutput      = "/tmp/subnet/chainId.txt"
 	vmIdOutput         = "/tmp/subnet/vmId.txt"
 	subnetIdOutput     = "/tmp/subnet/subnetId.txt"
-	validatorIdsOutput = "/tmp/subnetId/node-%d/validator_id.txt"
+	validatorIdsOutput = "/tmp/subnet/node-%d/validator_id.txt"
 )
 
 type wallet struct {
@@ -116,6 +117,10 @@ func main() {
 }
 
 func writeOutputs(subnetId ids.ID, vmId ids.ID, chainId ids.ID, validatorIds []ids.ID) error {
+	err := os.Mkdir(parentPath, 0700)
+	if err != nil {
+		return err
+	}
 	for index, validatorId := range validatorIds {
 		err := os.WriteFile(fmt.Sprintf(validatorIdsOutput, index), []byte(validatorId.String()), perms.ReadOnly)
 		if err != nil {
