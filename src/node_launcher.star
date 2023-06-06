@@ -69,6 +69,24 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             )
         )
 
+        # wait for this node to be healthy
+        response = plan.wait(
+            service_name=node.name,
+            recipe=PostHttpRequestRecipe(
+                port_id="rpc",
+                endpoint="/ext/info",
+                content_type = "application/json",
+                body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"info.getNodeID\"}",
+                extract = {
+                    "nodeID": ".result.nodeID",
+                }
+            ),
+            field="code",
+            assertion="==",
+            target_value=200,
+            timeout="1m",
+        )
+
         # perhaps add a wait on port here after exec
 
         bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
@@ -100,6 +118,24 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId):
             recipe = ExecRecipe(
                 command = ["/bin/sh", "-c", "pkill avalanchego && {0} &".format(launch_command_str)]
             )
+        )
+
+        # wait for this node to be healthy
+        response = plan.wait(
+            service_name=node.name,
+            recipe=PostHttpRequestRecipe(
+                port_id="rpc",
+                endpoint="/ext/info",
+                content_type = "application/json",
+                body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"info.getNodeID\"}",
+                extract = {
+                    "nodeID": ".result.nodeID",
+                }
+            ),
+            field="code",
+            assertion="==",
+            target_value=200,
+            timeout="1m",
         )
 
 
