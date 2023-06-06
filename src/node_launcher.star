@@ -122,7 +122,7 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId):
 
         # wait for this node to be healthy
         response = plan.wait(
-            service_name=node.name,
+            service_name=node_name,
             recipe=PostHttpRequestRecipe(
                 port_id="rpc",
                 endpoint="/ext/info",
