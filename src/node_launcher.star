@@ -74,6 +74,23 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
     return rpc_urls
 
 
+def restart_nodes(plan, num_nodes):
+    node_name = NODE_NAME_PREFIX + str(index)
+    for index in range(0, num_nodes):
+        plan.exec(
+            service_name = node_name,
+            recipe = ExecRecipe(
+                command = ["/bin/sh", "-c", "apt update --allow-insecure-repositores && apt-get install procps -y"]
+            )
+        )
+        plan.exec(
+            service_name = node_name,
+            recipe = ExecRecipe(
+                command = ["/bin/sh", "-c", "pkill avalanchego"]
+            )
+        )
+
+
 # reads the given file in service without the new line
 def read_file_from_service(plan, service_name, filename):
     output = plan.exec(
