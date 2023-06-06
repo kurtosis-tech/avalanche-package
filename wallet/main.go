@@ -17,7 +17,6 @@ import (
 	"github.com/ava-labs/avalanchego/wallet/subnet/primary"
 	"github.com/ava-labs/avalanchego/wallet/subnet/primary/common"
 	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -171,12 +170,7 @@ func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.I
 
 func createBlockChain(w *wallet, subnetId ids.ID, vmId ids.ID, chainName string) (ids.ID, error) {
 	ctx := context.Background()
-	ex, err := os.Executable()
-	if err != nil {
-		return ids.Empty, err
-	}
-	exPath := filepath.Dir(ex)
-	genesisData, err := os.ReadFile(filepath.Join(exPath, "genesis.json"))
+	genesisData, err := os.ReadFile("/tmp/wallet/genesis.json")
 	if err != nil {
 		return ids.Empty, err
 	}
