@@ -38,7 +38,7 @@ const (
 	stakeWeight = uint64(200)
 
 	// outputs
-	parentPath         = "/tmp/subnet/"
+	parentPath         = "/tmp/subnet/node-%d"
 	chainIdOutput      = "/tmp/subnet/chainId.txt"
 	vmIdOutput         = "/tmp/subnet/vmId.txt"
 	subnetIdOutput     = "/tmp/subnet/subnetId.txt"
@@ -117,11 +117,10 @@ func main() {
 }
 
 func writeOutputs(subnetId ids.ID, vmId ids.ID, chainId ids.ID, validatorIds []ids.ID) error {
-	err := os.Mkdir(parentPath, 0700)
-	if err != nil {
-		return err
-	}
 	for index, validatorId := range validatorIds {
+		if err := os.MkdirAll(fmt.Sprintf(parentPath, index), 0700); err != nil {
+			return err
+		}
 		err := os.WriteFile(fmt.Sprintf(validatorIdsOutput, index), []byte(validatorId.String()), perms.ReadOnly)
 		if err != nil {
 			return err
