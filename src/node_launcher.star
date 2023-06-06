@@ -24,7 +24,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
         node_config_filepath = node_data_dirpath + "config.json"
 
         launch_node_cmd = [
-            "./" + EXECUTABLE_PATH,
+            "/avalanchego/build/" + EXECUTABLE_PATH,
             "--genesis=/tmp/data/genesis.json", 
             "--data-dir=" + node_data_dirpath,
             "--config-file=" + node_config_filepath,
@@ -37,7 +37,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
             launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
-        launch_node_cmd_str = " ".join(launch_node_cmd)
+        launch_node_cmd = launch_node_cmd.append("&")
 
         public_ports = {}
         if expose_9650_if_one_node:
@@ -65,7 +65,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", launch_node_cmd_str + " &"]
+                command = launch_node_cmd,
             )
         )
 
@@ -73,13 +73,10 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
         response = plan.wait(
             service_name=node.name,
             recipe=PostHttpRequestRecipe(
-                port_id="rpc",
-                endpoint="/ext/info",
+                port_id=RPC_PORT_ID,
+                endpoint="/ext/health",
                 content_type = "application/json",
-                body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"info.getNodeID\"}",
-                extract = {
-                    "nodeID": ".result.nodeID",
-                }
+                body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"health.health\"}",
             ),
             field="code",
             assertion="==",
@@ -95,7 +92,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
         bootstrap_ids.append(bootstrap_id)
 
         nodes.append(node)
-        launch_commands.append(launch_node_cmd_str)
+        launch_commands.append(launch_node_cmd)
 
     rpc_urls = ["http://{0}:{1}".format(node.ip_address, RPC_PORT_NUM) for node in nodes]
 
@@ -105,8 +102,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 def restart_nodes(plan, num_nodes, launch_commands, subnetId):
     for index in range(0, num_nodes):
         node_name = NODE_NAME_PREFIX + str(index)
-        launch_command_str = launch_commands[0]
-        launch_command_str = launch_command_str + " --tracked-subnets={0}".format(subnetId)
+        launch_command = launch_commands[0] + ["&"]
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
@@ -116,7 +112,14 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId):
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", "pkill avalanchego && {0} &".format(launch_command_str)]
+                command = ["pkill", "avalanchego"]
+            )
+        )
+
+        plan.exec(
+            service_name = node_name,
+            recipe = ExecRecipe(
+                command = launch_command
             )
         )
 
