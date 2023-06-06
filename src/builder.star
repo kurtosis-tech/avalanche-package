@@ -40,6 +40,7 @@ def init(plan, network_id):
         )
     )
 
+
 def genesis(plan, network_id, num_nodes):
     plan.exec(
         service_name=BUILDER_SERVICE_NAME,
@@ -63,3 +64,34 @@ def genesis(plan, network_id, num_nodes):
     )
 
     return genesis_data
+
+
+def create_subnet(plan, uri, num_nodes, vmName = "testNet", chainName = "testChain"):
+    plan.exec(
+        service_name = BUILDER_SERVICE_NAME,
+        recipe = ExecRecipe(
+            command = ["/bin/sh", "-c", "cd /tmp/wallet & go run main.go {0} {1} {2} {3}".format(uri, vmName, chainName, num_nodes)]
+        )
+    )
+
+    subnetId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/subnetId.txt")
+    chainId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/chainId.txt")
+    vmId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/vmId.txt")
+
+    validatorIds = []
+    for index in range (0, num_nodes):
+        validatorIds.append(read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnetId/node-{0}/validator_id.txt".format(index)))
+    
+    return subnetId, chainId, vmId, validatorIds
+
+
+# reads the given file in service without the new line
+# TODO put this in utils
+def read_file_from_service(plan, service_name, filename):
+    output = plan.exec(
+        service_name = service_name,
+        recipe = ExecRecipe(
+            command = ["/bin/sh", "-c", "cat {}".format(filename)]
+        )
+    )
+    return output["output"]

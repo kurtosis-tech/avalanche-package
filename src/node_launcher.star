@@ -13,7 +13,7 @@ GENESIS_SERVICE_NAME = "genesis"
 def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
     bootstrap_ips = []
     bootstrap_ids = []
-    output_services = []
+    nodes = []
 
     for index in range(0, node_count):        
 
@@ -57,19 +57,21 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             public_ports = public_ports,
         )
 
-        node_service = plan.add_service(
+        node = plan.add_service(
             name = node_name,
             config = node_service_config,
         )
 
-        bootstrap_ips.append("{0}:{1}".format(node_service.ip_address, STAKING_PORT_NUM))
+        bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
         bootstrap_id_file = NODE_ID_PATH.format(index)
         bootstrap_id = read_file_from_service(plan, GENESIS_SERVICE_NAME, bootstrap_id_file)
         bootstrap_ids.append(bootstrap_id)
 
-        output_services.append(node_service)
+        nodes.append(node)
 
-    return output_services
+    rpc_urls = ["http://{0}:{1}".format(node.ip_address, RPC_PORT_NUM) for node in nodes]
+
+    return rpc_urls
 
 
 # reads the given file in service without the new line
