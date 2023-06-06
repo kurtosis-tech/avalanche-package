@@ -65,7 +65,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", launch_node_cmd_str + "&"]
+                command = ["/bin/sh", "-c", launch_node_cmd_str + " &"]
             )
         )
 
