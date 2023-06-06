@@ -8,7 +8,7 @@ ABS_DATA_DIRPATH= "/tmp/data/"
 NODE_NAME_PREFIX = "node-"
 
 NODE_ID_PATH = "/tmp/data/node-{0}/node_id.txt"
-GENESIS_SERVICE_NAME = "genesis"
+BUILDER_SERVICE_NAME = "builder"
 
 def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
     bootstrap_ips = []
@@ -64,7 +64,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 
         bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
         bootstrap_id_file = NODE_ID_PATH.format(index)
-        bootstrap_id = read_file_from_service(plan, GENESIS_SERVICE_NAME, bootstrap_id_file)
+        bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
         bootstrap_ids.append(bootstrap_id)
 
         nodes.append(node)
