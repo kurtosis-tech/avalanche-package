@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/ava-labs/avalanche-network-runner/utils"
 	"github.com/ava-labs/avalanchego/genesis"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/utils/constants"
@@ -15,13 +16,15 @@ import (
 	"github.com/ava-labs/avalanchego/wallet/subnet/primary"
 	"github.com/ava-labs/avalanchego/wallet/subnet/primary/common"
 	"os"
+	"path/filepath"
 	"time"
 )
 
 const (
 	uriIndex        = 1
-	taskArg = 2
-	minArgs         = 3
+	vmNameIndex = 2
+	chainNameIndex = 3
+	minArgs         = 4
 	nonZeroExitCode = 1
 )
 
@@ -51,17 +54,53 @@ func main() {
 		os.Exit(nonZeroExitCode)
 	}
 	
-	task := os.Args[taskArg]
-	switch task {
-	case "CreateSubnet":
-		subnetId, err := createSubnet(w)
-		if err != nil {
-			fmt.Printf("an error occurred while creating subnet: %v\n", err)
-			os.Exit(nonZeroExitCode)
-		}
-		fmt.Printf("subnet created with id '%v' \n", subnetId)
+	subnetId, err := createSubnet(w)
+	if err != nil {
+		fmt.Printf("an error occurred while creating subnet: %v\n", err)
+		os.Exit(nonZeroExitCode)
+	}
+	fmt.Printf("subnet created created with id '%v'\n", subnetId)
+
+	vmName := os.Args[vmNameIndex]
+	chainName := os.Args[chainNameIndex]
+	vmID, err := utils.VMID(vmName)
+	if err != nil {
+		fmt.Printf("an error occurred while creating vmid for vmname '%v'", vmName)
+		os.Exit(nonZeroExitCode)
 	}
 
+	chainId, err := createBlockChain(w, subnetId, vmID, chainName)
+	if err != nil {
+		fmt.Printf("an erorr occurred while creating chain: %v\n", err)
+	}
+	fmt.Printf("chain created with id '%v' and vm id '%v'\n", chainId, vmID)
+}
+
+func createBlockChain(w *wallet, subnetId ids.ID, vmId ids.ID, chainName string) (ids.ID, error) {
+	ctx := context.Background()
+	ex, err := os.Executable()
+	if err != nil {
+		return ids.Empty, err
+	}
+	exPath := filepath.Dir(ex)
+	genesisData, err := os.ReadFile(filepath.Join(exPath, "genesis.json"))
+	if err != nil {
+		return ids.Empty, err
+	}
+	var nilFxIds []ids.ID
+	chainId, err := w.pWallet.IssueCreateChainTx(
+		subnetId,
+		genesisData,
+		vmId,
+		nilFxIds,
+		chainName,
+		common.WithContext(ctx),
+		defaultPoll,
+	)
+	if err != nil {
+		return ids.Empty, nil
+	}
+	return chainId, nil
 }
 
 func createSubnet(w * wallet) (ids.ID, error) {
@@ -78,7 +117,7 @@ func createSubnet(w * wallet) (ids.ID, error) {
 		return ids.Empty, err
 	}
 
-	return subnetId, err
+	return subnetId, nil
 }
 
 func newWallet(uri string) (*wallet, error) {
@@ -109,5 +148,4 @@ func newWallet(uri string) (*wallet, error) {
 	xClient := avm.NewClient(uri, "X")
 	w.xWallet = x.NewWallet(xBuilder, xSigner, xClient, xBackend)
 	return &w, nil
-
 }
