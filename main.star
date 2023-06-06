@@ -13,4 +13,4 @@ def run(plan, args):
     first_url = rpc_urls[0]
     subnetId, chainId, vmId, validatorIds = builder.create_subnet(plan, first_url, node_count)
     plan.print(subnetId, chainId, vmId, validatorIds)
-    return nodes
+    return rpc_urls
