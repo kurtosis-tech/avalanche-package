@@ -54,14 +54,19 @@ func main() {
 	task := os.Args[taskArg]
 	switch task {
 	case "CreateSubnet":
-		createSubnet(w)
+		subnetId, err := createSubnet(w)
+		if err != nil {
+			fmt.Printf("an error occurred while creating subnet: %v\n", err)
+			os.Exit(nonZeroExitCode)
+		}
+		fmt.Printf("subnet created with id '%v' \n", subnetId)
 	}
 
 }
 
-func createSubnet(w * wallet) {
+func createSubnet(w * wallet) (ids.ID, error) {
 	ctx := context.Background()
-	w.pWallet.IssueCreateSubnetTx(
+	subnetId, err := w.pWallet.IssueCreateSubnetTx(
 		&secp256k1fx.OutputOwners{
 			Threshold: 1,
 			Addrs:     []ids.ShortID{w.addr},
@@ -69,6 +74,11 @@ func createSubnet(w * wallet) {
 		common.WithContext(ctx),
 		defaultPoll,
 	)
+	if err != nil {
+		return ids.Empty, err
+	}
+
+	return subnetId, err
 }
 
 func newWallet(uri string) (*wallet, error) {
