@@ -18,7 +18,8 @@ import (
 
 const (
 	uriIndex        = 1
-	minArgs         = 2
+	taskArg = 2
+	minArgs         = 3
 	nonZeroExitCode = 1
 )
 
@@ -42,10 +43,16 @@ func main() {
 		fmt.Printf("Couldn't create wallet \n")
 		os.Exit(nonZeroExitCode)
 	}
+	
+	task := os.Args[taskArg]
+	switch task {
+	case "CreateSubnet":
+		createSubnet(localWallet)
+	}
+}
 
-	localWallet.pWallet.IssueCreateSubnetTx(
-		
-	)
+func createSubnet(localWallet * wallet) {
+
 }
 
 func newWallet(uri string) (*wallet, error) {
