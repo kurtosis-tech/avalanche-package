@@ -65,8 +65,8 @@ def genesis(plan, network_id, num_nodes):
 
     return genesis_data
 
-
-def create_subnet(plan, uri, num_nodes, vmName = "testNet", chainName = "testChain"):
+# TODO figure out how chainName here maps to chainId in cli
+def create_subnet(plan, uri, num_nodes, vmName = "testNet", chainName = "1332434"):
     plan.exec(
         service_name = BUILDER_SERVICE_NAME,
         recipe = ExecRecipe(
