@@ -13,7 +13,9 @@ import (
 	"github.com/ava-labs/avalanchego/wallet/chain/p"
 	"github.com/ava-labs/avalanchego/wallet/chain/x"
 	"github.com/ava-labs/avalanchego/wallet/subnet/primary"
+	"github.com/ava-labs/avalanchego/wallet/subnet/primary/common"
 	"os"
+	"time"
 )
 
 const (
@@ -32,13 +34,18 @@ type wallet struct {
 	xWallet  x.Wallet
 }
 
+var (
+	defaultPoll = common.WithPollFrequency(100 * time.Millisecond)
+)
+
 func main() {
 	if len(os.Args) < minArgs {
 		fmt.Printf("Need at least '%v' args got '%v'\n",, minArgs, len(os.Args))
 		os.Exit(nonZeroExitCode)
 	}
+
 	uri := os.Args[uriIndex]
-	localWallet, err := newWallet(uri)
+	w, err := newWallet(uri)
 	if err != nil {
 		fmt.Printf("Couldn't create wallet \n")
 		os.Exit(nonZeroExitCode)
@@ -47,12 +54,21 @@ func main() {
 	task := os.Args[taskArg]
 	switch task {
 	case "CreateSubnet":
-		createSubnet(localWallet)
+		createSubnet(w)
 	}
+
 }
 
-func createSubnet(localWallet * wallet) {
-
+func createSubnet(w * wallet) {
+	ctx := context.Background()
+	w.pWallet.IssueCreateSubnetTx(
+		&secp256k1fx.OutputOwners{
+			Threshold: 1,
+			Addrs:     []ids.ShortID{w.addr},
+		},
+		common.WithContext(ctx),
+		defaultPoll,
+	)
 }
 
 func newWallet(uri string) (*wallet, error) {
