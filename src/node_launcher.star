@@ -14,6 +14,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
     bootstrap_ips = []
     bootstrap_ids = []
     nodes = []
+    launch_commands = []
 
     for index in range(0, node_count):        
 
@@ -40,17 +41,16 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 
         public_ports = {}
         if expose_9650_if_one_node:
-            public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP")
-            public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP")
+            public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP", wait=None)
+            public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP", wait=None)
 
         node_service_config = ServiceConfig(
             image = image,
             ports = {
-                "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP"),
-                "staking": PortSpec(number = STAKING_PORT_NUM, transport_protocol = "TCP")
+                "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait = None),
+                "staking": PortSpec(number = STAKING_PORT_NUM, transport_protocol = "TCP", wait = None)
             },
-            entrypoint = ["/bin/sh", "-c"],
-            cmd = [launch_node_cmd_str],
+            entrypoint = ["tail", "-f", "/dev/null"],
             files = {
                 "/tmp/": genesis,
             },
@@ -62,21 +62,33 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             config = node_service_config,
         )
 
+        plan.exec(
+            name = node_name,
+            recipe = ExecRecipe(
+                command = ["/bin/sh", "-c", launch_node_cmd_str]
+            )
+        )
+
+        # perhaps add a wait on port here after exec
+
         bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
         bootstrap_id_file = NODE_ID_PATH.format(index)
         bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
         bootstrap_ids.append(bootstrap_id)
 
         nodes.append(node)
+        launch_commands.append(launch_node_cmd_str)
 
     rpc_urls = ["http://{0}:{1}".format(node.ip_address, RPC_PORT_NUM) for node in nodes]
 
-    return rpc_urls
+    return rpc_urls, launch_commands
 
 
-def restart_nodes(plan, num_nodes):
+def restart_nodes(plan, num_nodes, launch_commands, subnetId):
     node_name = NODE_NAME_PREFIX + str(index)
     for index in range(0, num_nodes):
+        launch_command_str = launch_commands[0]
+        launch_command_str = launch_command_str + " --tracked-subnets={0}".format(subnetId)
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
@@ -86,7 +98,7 @@ def restart_nodes(plan, num_nodes):
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", "pkill avalanchego"]
+                command = ["/bin/sh", "-c", "pkill avalanchego && {0}".format(launch_command_str)]
             )
         )
 
