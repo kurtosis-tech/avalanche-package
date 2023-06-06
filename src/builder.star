@@ -70,7 +70,7 @@ def create_subnet(plan, uri, num_nodes, vmName = "testNet", chainName = "testCha
     plan.exec(
         service_name = BUILDER_SERVICE_NAME,
         recipe = ExecRecipe(
-            command = ["/bin/sh", "-c", "cd /tmp/wallet & go run main.go {0} {1} {2} {3}".format(uri, vmName, chainName, num_nodes)]
+            command = ["/bin/sh", "-c", "cd /tmp/wallet && go run main.go {0} {1} {2} {3}".format(uri, vmName, chainName, num_nodes)]
         )
     )
 
