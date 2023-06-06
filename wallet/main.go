@@ -13,6 +13,13 @@ import (
 	"github.com/ava-labs/avalanchego/wallet/chain/p"
 	"github.com/ava-labs/avalanchego/wallet/chain/x"
 	"github.com/ava-labs/avalanchego/wallet/subnet/primary"
+	"os"
+)
+
+const (
+	uriIndex        = 1
+	minArgs         = 2
+	nonZeroExitCode = 1
 )
 
 type wallet struct {
@@ -25,7 +32,20 @@ type wallet struct {
 }
 
 func main() {
-	fmt.Println("hello")
+	if len(os.Args) < minArgs {
+		fmt.Printf("Need at least '%v' args got '%v'\n",, minArgs, len(os.Args))
+		os.Exit(nonZeroExitCode)
+	}
+	uri := os.Args[uriIndex]
+	localWallet, err := newWallet(uri)
+	if err != nil {
+		fmt.Printf("Couldn't create wallet \n")
+		os.Exit(nonZeroExitCode)
+	}
+
+	localWallet.pWallet.IssueCreateSubnetTx(
+		
+	)
 }
 
 func newWallet(uri string) (*wallet, error) {
