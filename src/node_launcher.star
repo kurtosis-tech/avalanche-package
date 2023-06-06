@@ -37,7 +37,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
             launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
-        launch_node_cmd = launch_node_cmd.append("&")
+        launch_node_cmd.append("&")
 
         public_ports = {}
         if expose_9650_if_one_node:
