@@ -24,6 +24,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
         node_config_filepath = node_data_dirpath + "config.json"
 
         launch_node_cmd = [
+            "nohup",
             "/avalanchego/build/" + EXECUTABLE_PATH,
             "--genesis=/tmp/data/genesis.json", 
             "--data-dir=" + node_data_dirpath,
@@ -65,7 +66,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = launch_node_cmd,
+                command = ["/bin/sh", "-c", " ".join(launch_node_cmd)],
             )
         )
 
@@ -102,11 +103,11 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 def restart_nodes(plan, num_nodes, launch_commands, subnetId):
     for index in range(0, num_nodes):
         node_name = NODE_NAME_PREFIX + str(index)
-        launch_command = launch_commands[0] + ["&"]
+        launch_command = launch_commands[0]
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", "apt update --allow-insecure-repositores && apt-get install procps -y"]
+                command = ["/bin/sh", "-c", "apt update --allow-insecure-repositories && apt-get install procps -y --allow-unauthenticated"]
             )
         )
         plan.exec(
@@ -119,7 +120,7 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId):
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = launch_command
+                command = ["/bin/sh", "-c", " ".join(launch_command)],
             )
         )
 
