@@ -65,7 +65,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", launch_node_cmd_str]
+                command = ["/bin/sh", "-c", launch_node_cmd_str + "&"]
             )
         )
 
@@ -98,7 +98,7 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId):
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", "pkill avalanchego && {0}".format(launch_command_str)]
+                command = ["/bin/sh", "-c", "pkill avalanchego && {0} &".format(launch_command_str)]
             )
         )
 
