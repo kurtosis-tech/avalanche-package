@@ -38,8 +38,6 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
             launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
-        launch_node_cmd.append(">/dev/null 2>&1 &")
-
         public_ports = {}
         if expose_9650_if_one_node:
             public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP", wait=None)
@@ -66,7 +64,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", " ".join(launch_node_cmd)],
+                command = ["/bin/sh", "-c", " ".join(launch_node_cmd) + " >/dev/null 2>&1 &"],
             )
         )
 
@@ -100,10 +98,12 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
     return rpc_urls, launch_commands
 
 
-def restart_nodes(plan, num_nodes, launch_commands, subnetId):
+def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
     for index in range(0, num_nodes):
         node_name = NODE_NAME_PREFIX + str(index)
         launch_command = launch_commands[0]
+        launch_command.append("--tracked-subnets={0}".format(subnetId))
+
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
@@ -117,10 +117,12 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId):
             )
         )
 
+        # TODO add copying of vm
+
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", " ".join(launch_command)],
+                command = ["/bin/sh", "-c", " ".join(launch_command) + " >/dev/null 2>&1 &"],
             )
         )
 
