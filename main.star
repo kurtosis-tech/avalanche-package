@@ -11,5 +11,6 @@ def run(plan, args):
     genesis = builder.genesis(plan, "1337" ,node_count)
     rpc_urls = node_launcher.launch(plan, genesis, args_with_right_defaults["avalanchego_image"], node_count, expose_9650_if_one_node)
     first_url = rpc_urls[0]
-    return subnetId, chainId, vmId, validatorIds = builder.create_subnet(plan, first_url, node_count)
+    subnetId, chainId, vmId, validatorIds = builder.create_subnet(plan, first_url, node_count)
+    plan.print(subnetId, chainId, vmId, validatorIds)
     return nodes
