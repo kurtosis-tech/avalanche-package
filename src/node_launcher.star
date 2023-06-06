@@ -63,7 +63,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
         )
 
         plan.exec(
-            name = node_name,
+            service_name = node_name,
             recipe = ExecRecipe(
                 command = ["/bin/sh", "-c", launch_node_cmd_str]
             )
@@ -85,8 +85,8 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 
 
 def restart_nodes(plan, num_nodes, launch_commands, subnetId):
-    node_name = NODE_NAME_PREFIX + str(index)
     for index in range(0, num_nodes):
+        node_name = NODE_NAME_PREFIX + str(index)
         launch_command_str = launch_commands[0]
         launch_command_str = launch_command_str + " --tracked-subnets={0}".format(subnetId)
         plan.exec(
