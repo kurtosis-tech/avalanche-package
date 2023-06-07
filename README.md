@@ -37,6 +37,11 @@ will spin up 3 non-stacking Avalanche nodes locally.
 
 </details>
 
+
+### Non Ephemeral Ports
+
+Use the `{"ephemeral_ports": false}` argument to get non ephemeral ports, rpc ports will be on 9650, 9652, 9654 and so on while non staking ports will be on 9651, 9653, 9655 and so on.
+
 Use this package in your package
 --------------------------------
 Kurtosis packages can be composed inside other Kurtosis packages.  Assuming you want to spin up an Avalanche node and your own service

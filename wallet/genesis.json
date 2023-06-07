@@ -1,7 +1,7 @@
 {
     "config": {
         "byzantiumBlock": 0,
-        "chainId": 1332434,
+        "chainId": 13123,
         "constantinopleBlock": 0,
         "eip150Block": 0,
         "eip150Hash": "0x2086799aeebeae135c246c65021c82b4e15a2c451340993aacfd2751886514f0",

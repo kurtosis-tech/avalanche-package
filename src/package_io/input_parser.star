@@ -9,11 +9,13 @@ def parse_input(input_args):
 def get_default_input_args():
     default_node_cfg = get_default_node_cfg()
     return {
+        "ephemeral_ports": True,
         "avalanchego_image": DEFAULT_AVALANCHEGO_IMAGE,
         "node_config": default_node_cfg,
         "node_count": 5
     }
 
+# TODO figure out why stakng is disabled
 def get_default_node_cfg():
     return {
         "network-id": "1337",
