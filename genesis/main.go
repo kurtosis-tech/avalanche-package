@@ -61,7 +61,10 @@ func main() {
 			os.Exit(nonZeroExitCode)
 		}
 		nodeId := ids.NodeIDFromCert(cert.Leaf)
-		os.WriteFile(fmt.Sprintf(nodeIdPath, index), []byte(nodeId.String()), perms.ReadOnly)
+		if err = os.WriteFile(fmt.Sprintf(nodeIdPath, index), []byte(nodeId.String()), perms.ReadOnly); err != nil {
+			fmt.Printf("an error occurred while writing out node id for node '%v': %v", index, err)
+			os.Exit(nonZeroExitCode)
+		}
 		fmt.Printf("node '%v' has node id '%v'\n", index, nodeId)
 		genesisValidators = append(genesisValidators, nodeId)
 	}
@@ -85,8 +88,15 @@ func main() {
 	}
 
 	unparsedConfig.InitialStakers = initialStakers
-	genesisJson, _ := json.Marshal(unparsedConfig)
+	genesisJson, err := json.Marshal(unparsedConfig)
+	if err != nil {
+		fmt.Printf("an error occurred while creating json for genesis: %v\n", err)
+		os.Exit(nonZeroExitCode)
+	}
 
-	os.WriteFile(genesisFile, genesisJson, perms.ReadOnly)
+	if err = os.WriteFile(genesisFile, genesisJson, perms.ReadOnly); err != nil {
+		fmt.Printf("an error occurred while writing out genesis file: %v", err)
+		os.Exit(nonZeroExitCode)
+	}
 	fmt.Printf("generated genesis data at '%v'\n", genesisFile)
 }

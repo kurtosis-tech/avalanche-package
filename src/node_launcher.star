@@ -8,12 +8,18 @@ ABS_DATA_DIRPATH= "/tmp/data/"
 NODE_NAME_PREFIX = "node-"
 
 NODE_ID_PATH = "/tmp/data/node-{0}/node_id.txt"
-GENESIS_SERVICE_NAME = "genesis"
+BUILDER_SERVICE_NAME = "builder"
+
+# TODO make this automated
+DEFAULT_PLUGIN_NAME = "srEXiWaHuhNyGwPUi444Tu47ZEDwxTWrbQiuD7FmgSAQ6X7Dy"
+
+ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
 def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
     bootstrap_ips = []
     bootstrap_ids = []
-    output_services = []
+    nodes = []
+    launch_commands = []
 
     for index in range(0, node_count):        
 
@@ -23,7 +29,8 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
         node_config_filepath = node_data_dirpath + "config.json"
 
         launch_node_cmd = [
-            "./" + EXECUTABLE_PATH,
+            "nohup",
+            "/avalanchego/build/" + EXECUTABLE_PATH,
             "--genesis=/tmp/data/genesis.json", 
             "--data-dir=" + node_data_dirpath,
             "--config-file=" + node_config_filepath,
@@ -36,40 +43,104 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
             launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
-        launch_node_cmd_str = " ".join(launch_node_cmd)
-
         public_ports = {}
         if expose_9650_if_one_node:
-            public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP")
-            public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP")
+            public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP", wait=None)
+            public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP", wait=None)
 
         node_service_config = ServiceConfig(
             image = image,
             ports = {
-                "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP"),
-                "staking": PortSpec(number = STAKING_PORT_NUM, transport_protocol = "TCP")
+                "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait = None),
+                "staking": PortSpec(number = STAKING_PORT_NUM, transport_protocol = "TCP", wait = None)
             },
-            entrypoint = ["/bin/sh", "-c"],
-            cmd = [launch_node_cmd_str],
+            entrypoint = ["tail", "-f", "/dev/null"],
             files = {
                 "/tmp/": genesis,
             },
             public_ports = public_ports,
         )
 
-        node_service = plan.add_service(
+        node = plan.add_service(
             name = node_name,
             config = node_service_config,
         )
 
-        bootstrap_ips.append("{0}:{1}".format(node_service.ip_address, STAKING_PORT_NUM))
+        plan.exec(
+            service_name = node_name,
+            recipe = ExecRecipe(
+                command = ["/bin/sh", "-c", " ".join(launch_node_cmd) + " >/dev/null 2>&1 &"],
+            )
+        )
+
+        bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
         bootstrap_id_file = NODE_ID_PATH.format(index)
-        bootstrap_id = read_file_from_service(plan, GENESIS_SERVICE_NAME, bootstrap_id_file)
+        bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
         bootstrap_ids.append(bootstrap_id)
 
-        output_services.append(node_service)
+        nodes.append(node)
+        launch_commands.append(launch_node_cmd)
 
-    return output_services
+    wait_for_helath(plan, "node-"+ str(node_count-1))
+
+    rpc_urls = ["http://{0}:{1}".format(node.ip_address, RPC_PORT_NUM) for node in nodes]
+
+    return rpc_urls, launch_commands
+
+
+def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
+    for index in range(0, num_nodes):
+        node_name = NODE_NAME_PREFIX + str(index)
+        launch_command = launch_commands[index]
+        launch_command.append("--track-subnets={0}".format(subnetId))
+
+        plan.exec(
+            service_name = node_name,
+            recipe = ExecRecipe(
+                command = ["/bin/sh", "-c", "apt update --allow-insecure-repositories && apt-get install procps -y --allow-unauthenticated"]
+            )
+        )
+        plan.exec(
+            service_name = node_name,
+            recipe = ExecRecipe(
+                command = ["pkill", "avalanchego"]
+            )
+        )
+
+        plan.exec(
+            service_name = node_name,
+            recipe = ExecRecipe(
+                command = ["cp", ABS_PLUGIN_DIRPATH + DEFAULT_PLUGIN_NAME, ABS_PLUGIN_DIRPATH + vmId]
+            )
+        )
+
+        plan.exec(
+            service_name = node_name,
+            recipe = ExecRecipe(
+                command = ["/bin/sh", "-c", " ".join(launch_command) + " >/dev/null 2>&1 &"],
+            )
+        )
+
+    wait_for_helath(plan, "node-"+ str(num_nodes-1))
+
+
+def wait_for_helath(plan, node_name):
+    response = plan.wait(
+        service_name=node_name,
+        recipe=PostHttpRequestRecipe(
+            port_id=RPC_PORT_ID,
+            endpoint="/ext/health",
+            content_type = "application/json",
+            body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"health.health\"}",
+            extract = {
+                "healthy": ".result.healthy",
+            }
+        ),
+        field="extract.healthy",
+        assertion="==",
+        target_value=True,
+        timeout="1m",
+    )
 
 
 # reads the given file in service without the new line
