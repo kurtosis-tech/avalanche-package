@@ -91,7 +91,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
     for index in range(0, num_nodes):
         node_name = NODE_NAME_PREFIX + str(index)
-        launch_command = launch_commands[0]
+        launch_command = launch_commands[index]
         launch_command.append("--track-subnets={0}".format(subnetId))
 
         plan.exec(
