@@ -81,7 +81,7 @@ def create_subnet(plan, uri, num_nodes, vmName = "testNet", chainName = "1332434
 
     validatorIds = []
     for index in range (0, num_nodes):
-        validatorIds.append(read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnetId/node-{0}/validator_id.txt".format(index)))
+        validatorIds.append(read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/node-{0}/validator_id.txt".format(index)))
     
     return subnetId, chainId, vmId, validatorIds
 

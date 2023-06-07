@@ -68,20 +68,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             )
         )
 
-        # wait for this node to be healthy
-        response = plan.wait(
-            service_name=node.name,
-            recipe=PostHttpRequestRecipe(
-                port_id=RPC_PORT_ID,
-                endpoint="/ext/health",
-                content_type = "application/json",
-                body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"health.health\"}",
-            ),
-            field="code",
-            assertion="==",
-            target_value=200,
-            timeout="1m",
-        )
+        wait_for_helath(plan, node_name)
 
         # perhaps add a wait on port here after exec
 
@@ -126,23 +113,26 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
             )
         )
 
-        # wait for this node to be healthy
-        response = plan.wait(
-            service_name=node_name,
-            recipe=PostHttpRequestRecipe(
-                port_id="rpc",
-                endpoint="/ext/info",
-                content_type = "application/json",
-                body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"info.getNodeID\"}",
-                extract = {
-                    "nodeID": ".result.nodeID",
-                }
-            ),
-            field="code",
-            assertion="==",
-            target_value=200,
-            timeout="1m",
-        )
+        wait_for_helath(plan, node_name)
+
+
+def wait_for_helath(plan, node_name):
+    response = plan.wait(
+        service_name=node_name,
+        recipe=PostHttpRequestRecipe(
+            port_id=RPC_PORT_ID,
+            endpoint="/ext/health",
+            content_type = "application/json",
+            body="{ \"jsonrpc\":\"2.0\", \"id\" :1, \"method\" :\"health.health\"}",
+            extract = {
+                "healthy": ".result.healthy",
+            }
+        ),
+        field="extract.healthy",
+        assertion="==",
+        target_value=True,
+        timeout="1m",
+    )
 
 
 # reads the given file in service without the new line
