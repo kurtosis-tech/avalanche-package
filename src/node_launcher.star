@@ -73,8 +73,6 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             )
         )
 
-        wait_for_helath(plan, node_name)
-
         bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
         bootstrap_id_file = NODE_ID_PATH.format(index)
         bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
@@ -82,6 +80,8 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 
         nodes.append(node)
         launch_commands.append(launch_node_cmd)
+
+    wait_for_helath(plan, "node-"+ str(node_count-1))
 
     rpc_urls = ["http://{0}:{1}".format(node.ip_address, RPC_PORT_NUM) for node in nodes]
 
@@ -121,7 +121,7 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
             )
         )
 
-        wait_for_helath(plan, node_name)
+    wait_for_helath(plan, "node-"+ str(num_nodes-1))
 
 
 def wait_for_helath(plan, node_name):
