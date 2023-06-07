@@ -252,7 +252,7 @@ func addPermissionlessValidator(w *wallet, subnetId ids.ID, assetId ids.ID, numV
 			common.WithContext(ctx),
 		)
 		if err != nil {
-			return nil, fmt.Errorf("an error occurred while adding validator '%v': %v", nodeId, validatorId)
+			return nil, fmt.Errorf("an error occurred while adding validator '%v': %v", index, err)
 		}
 		validatorIDs = append(validatorIDs, validatorId)
 	}
