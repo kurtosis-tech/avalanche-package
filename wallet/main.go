@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"github.com/ava-labs/avalanche-network-runner/utils"
 	"github.com/ava-labs/avalanchego/genesis"
@@ -54,6 +56,9 @@ const (
 	exportIdOutput         = "/tmp/subnet/exportId.txt"
 	importIdOutput         = "/tmp/subnet/importId.txt"
 	transformationIdOutput = "/tmp/subnet/transformationId.txt"
+
+	// staking key
+	stakingNodeKeyPath = "/tmp/data/node-%d/staking/staker.key"
 )
 
 // https://github.com/ava-labs/avalanche-cli/blob/917ef2e440880d68452080b4051c3031be76b8af/pkg/elasticsubnet/config_prompt.go#L18-L38
@@ -234,6 +239,7 @@ func addPermissionlessValidator(w *wallet, subnetId ids.ID, assetId ids.ID, numV
 		if err != nil {
 			return nil, fmt.Errorf("couldn't convert '%v' to node id", string(nodeIdBytes))
 		}
+		w.pWallet.IssueExportTx()
 		validatorId, err := w.pWallet.IssueAddPermissionlessValidatorTx(
 			&txs.SubnetValidator{
 				Validator: txs.Validator{
@@ -282,6 +288,20 @@ func transformSubnet(w *wallet, subnetId ids.ID, assetId ids.ID) (ids.ID, error)
 		return ids.Empty, err
 	}
 	return transformId, err
+}
+
+func fundValidatorNodes(w *wallet, numNodes int, amount int) error {
+	for index := 0; index < numNodes; index++ {
+		privateKeyPath := fmt.Sprintf(stakingNodeKeyPath, index)
+		privateKeyBytes, err := os.ReadFile(privateKeyPath)
+		if err != nil {
+			return fmt.Errorf("an error occurred while reading the private key '%v': %v", privateKeyPath, err)
+		}
+		block, _ := pem.Decode(privateKeyBytes)
+		key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+		fmt.Println(key.N.String())
+	}
+	return nil
 }
 
 func createAssetOnXChainImportToPChain(w *wallet, name string, symbol string, denomination byte, maxSupply uint64) (ids.ID, ids.ID, ids.ID, error) {
