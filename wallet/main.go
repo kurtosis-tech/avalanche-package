@@ -9,6 +9,7 @@ import (
 	"github.com/ava-labs/avalanchego/utils/constants"
 	"github.com/ava-labs/avalanchego/utils/perms"
 	"github.com/ava-labs/avalanchego/vms/avm"
+	"github.com/ava-labs/avalanchego/vms/components/avax"
 	"github.com/ava-labs/avalanchego/vms/components/verify"
 	"github.com/ava-labs/avalanchego/vms/platformvm"
 	"github.com/ava-labs/avalanchego/vms/platformvm/txs"
@@ -123,12 +124,12 @@ func main() {
 	}
 
 	if isElastic {
-		assetId, err := createAsset(w, "foo token", "FOO", 9, 100000)
+		assetId, exportId, importId, err := createAssetOnXChainImportToPChain(w, "foo token", "FOO", 9, 100000)
 		if err != nil {
 			fmt.Printf("an error occurred while creating asset: %v\n", err)
 			os.Exit(nonZeroExitCode)
 		}
-		fmt.Printf("created asset '%v'\n", assetId)
+		fmt.Printf("created asset '%v' exported with id '%v' and imported with id '%v'\n", assetId, exportId, importId)
 	}
 }
 
@@ -154,7 +155,7 @@ func writeOutputs(subnetId ids.ID, vmId ids.ID, chainId ids.ID, validatorIds []i
 	return nil
 }
 
-func createAsset(w *wallet, name string, symbol string, denomination byte, maxSupply uint64) (ids.ID, error) {
+func createAssetOnXChainImportToPChain(w *wallet, name string, symbol string, denomination byte, maxSupply uint64) (ids.ID, ids.ID, ids.ID, error) {
 	ctx := context.Background()
 	owner := &secp256k1fx.OutputOwners{
 		Threshold: 1,
@@ -178,9 +179,35 @@ func createAsset(w *wallet, name string, symbol string, denomination byte, maxSu
 		common.WithContext(ctx),
 	)
 	if err != nil {
-		return ids.Empty, err
+		return ids.Empty, ids.Empty, ids.Empty, fmt.Errorf("an error occurred while creating asset: %v", err)
 	}
-	return assetId, nil
+	exportId, err := w.xWallet.IssueExportTx(
+		ids.Empty,
+		[]*avax.TransferableOutput{
+			{
+				Asset: avax.Asset{
+					ID: assetId,
+				},
+				Out: &secp256k1fx.TransferOutput{
+					Amt:          maxSupply,
+					OutputOwners: *owner,
+				},
+			},
+		},
+		common.WithContext(ctx),
+	)
+	if err != nil {
+		return ids.Empty, ids.Empty, ids.Empty, fmt.Errorf("an error occurred while issuing asset export: %v", err)
+	}
+	importId, err := w.pWallet.IssueImportTx(
+		w.xWallet.BlockchainID(),
+		owner,
+		common.WithContext(ctx),
+	)
+	if err != nil {
+		return ids.Empty, ids.Empty, ids.Empty, fmt.Errorf("an error occurred while issuing asset import: %v", err)
+	}
+	return assetId, exportId, importId, nil
 }
 
 func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.ID, error) {
