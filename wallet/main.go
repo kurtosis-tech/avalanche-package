@@ -9,6 +9,7 @@ import (
 	"github.com/ava-labs/avalanchego/utils/constants"
 	"github.com/ava-labs/avalanchego/utils/perms"
 	"github.com/ava-labs/avalanchego/vms/avm"
+	"github.com/ava-labs/avalanchego/vms/components/verify"
 	"github.com/ava-labs/avalanchego/vms/platformvm"
 	"github.com/ava-labs/avalanchego/vms/platformvm/txs"
 	"github.com/ava-labs/avalanchego/vms/secp256k1fx"
@@ -26,7 +27,8 @@ const (
 	vmNameIndex            = 2
 	chainNameIndex         = 3
 	numValidatorNodesIndex = 4
-	minArgs                = 5
+	isElasticIndex         = 5
+	minArgs                = 6
 	nonZeroExitCode        = 1
 	nodeIdPathFormat       = "/tmp/data/node-%d/node_id.txt"
 
@@ -73,6 +75,11 @@ func main() {
 		fmt.Printf("An error occurred while converting numValidatorNodes arg to integer: %v\n", err)
 		os.Exit(nonZeroExitCode)
 	}
+	isElasticArg := os.Args[isElasticIndex]
+	isElastic, err := strconv.ParseBool(isElasticArg)
+	if err != nil {
+		fmt.Printf("an error occurred converting is elastic '%v' to bool", isElastic)
+	}
 
 	fmt.Printf("trying uri '%v' vmName '%v' chainName '%v' and numValidatorNodes '%v'", uri, vmName, chainName, numValidatorNodes)
 
@@ -107,12 +114,21 @@ func main() {
 		fmt.Printf("an error occurred while adding validators: %v\n", err)
 		os.Exit(nonZeroExitCode)
 	}
-	fmt.Printf("validators added with ids '%v'", validatorIds)
+	fmt.Printf("validators added with ids '%v'\n", validatorIds)
 
 	err = writeOutputs(subnetId, vmID, chainId, validatorIds)
 	if err != nil {
 		fmt.Printf("an error occurred while writing outputs: %v\n", err)
 		os.Exit(nonZeroExitCode)
+	}
+
+	if isElastic {
+		assetId, err := createAsset(w, "foo token", "FOO", 9, 100000)
+		if err != nil {
+			fmt.Printf("an error occurred while creating asset: %v\n", err)
+			os.Exit(nonZeroExitCode)
+		}
+		fmt.Printf("created asset '%v'\n", assetId)
 	}
 }
 
@@ -136,6 +152,35 @@ func writeOutputs(subnetId ids.ID, vmId ids.ID, chainId ids.ID, validatorIds []i
 		return err
 	}
 	return nil
+}
+
+func createAsset(w *wallet, name string, symbol string, denomination byte, maxSupply uint64) (ids.ID, error) {
+	ctx := context.Background()
+	owner := &secp256k1fx.OutputOwners{
+		Threshold: 1,
+		Addrs: []ids.ShortID{
+			genesis.EWOQKey.PublicKey().Address(),
+		},
+	}
+	assetId, err := w.xWallet.IssueCreateAssetTx(
+		name,
+		symbol,
+		denomination,
+		// borrowed from https://github.com/ava-labs/avalanche-cli/blob/917ef2e440880d68452080b4051c3031be76b8af/pkg/subnet/local.go#L101C32-L111
+		map[uint32][]verify.State{
+			0: {
+				&secp256k1fx.TransferOutput{
+					Amt:          maxSupply,
+					OutputOwners: *owner,
+				},
+			},
+		},
+		common.WithContext(ctx),
+	)
+	if err != nil {
+		return ids.Empty, err
+	}
+	return assetId, nil
 }
 
 func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.ID, error) {

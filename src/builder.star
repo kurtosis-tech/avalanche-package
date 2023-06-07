@@ -65,13 +65,13 @@ def genesis(plan, network_id, num_nodes):
 
     return genesis_data
 
-# TODO figure out how chainName here maps to chainId in cli
-# for now mapped to genesis.json
-def create_subnet(plan, uri, num_nodes, is_elastic, vmName = "testNet", chainName = "13123"):
+
+# TODO make vmName and chainName passable
+def create_subnet(plan, uri, num_nodes, is_elastic, vmName = "testNet", chainName = "testChain"):
     plan.exec(
         service_name = BUILDER_SERVICE_NAME,
         recipe = ExecRecipe(
-            command = ["/bin/sh", "-c", "cd /tmp/wallet && go run main.go {0} {1} {2} {3}".format(uri, vmName, chainName, num_nodes)]
+            command = ["/bin/sh", "-c", "cd /tmp/wallet && go run main.go {0} {1} {2} {3} {4}".format(uri, vmName, chainName, num_nodes, is_elastic)]
         )
     )
 
