@@ -149,7 +149,7 @@ func main() {
 
 	var assetId, exportId, importId, transformationId ids.ID
 	if isElastic {
-		assetId, exportId, importId, err = createAssetOnXChainImportToPChain(w, "foo token", "FOO", 9, 100000)
+		assetId, exportId, importId, err = createAssetOnXChainImportToPChain(w, "foo token", "FOO", 9, 100000000000)
 		if err != nil {
 			fmt.Printf("an error occurred while creating asset: %v\n", err)
 			os.Exit(nonZeroExitCode)
