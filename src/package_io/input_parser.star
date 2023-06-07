@@ -11,7 +11,7 @@ def get_default_input_args():
     return {
         "avalanchego_image": DEFAULT_AVALANCHEGO_IMAGE,
         "node_config": default_node_cfg,
-        "node_count": 2
+        "node_count": 5
     }
 
 def get_default_node_cfg():
