@@ -15,6 +15,8 @@ DEFAULT_PLUGIN_NAME = "srEXiWaHuhNyGwPUi444Tu47ZEDwxTWrbQiuD7FmgSAQ6X7Dy"
 
 ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
+PUBLIC_IP = "127.0.0.1"
+
 def launch(plan, genesis, image, node_count, ephemeral_ports):
     bootstrap_ips = []
     bootstrap_ids = []
@@ -84,8 +86,11 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
     wait_for_helath(plan, "node-"+ str(node_count-1))
 
     rpc_urls = ["http://{0}:{1}".format(node.ip_address, RPC_PORT_NUM) for node in nodes]
+    public_rpc_urls = []
+    if not ephemeral_ports:
+        public_rpc_urls = ["http://{0}:{1}".format(PUBLIC_IP, RPC_PORT_NUM + index*2) for index, node in enumerate(nodes)]
 
-    return rpc_urls, launch_commands
+    return rpc_urls, public_rpc_urls, launch_commands
 
 
 def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
