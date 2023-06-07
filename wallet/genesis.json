@@ -1,7 +1,7 @@
 {
     "config": {
         "byzantiumBlock": 0,
-        "chainId": 13123,
+        "chainId": 1332434,
         "constantinopleBlock": 0,
         "eip150Block": 0,
         "eip150Hash": "0x2086799aeebeae135c246c65021c82b4e15a2c451340993aacfd2751886514f0",
@@ -31,8 +31,23 @@
     "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
     "coinbase": "0x0000000000000000000000000000000000000000",
     "alloc": {
-        "8db97c7cece249c2b98bdc0226cc4c2a57bf52fc": {
-            "balance": "0xd3c21bcecceda1000000"
+        "15d34aaf54267db7d7c367839aaf71a00a2c6a65": {
+            "balance": "0x21e19e0c9bab2400000"
+        },
+        "3c44cdddb6a900fa2b585dd299e03d12fa4293bc": {
+            "balance": "0x21e19e0c9bab2400000"
+        },
+        "70997970c51812dc3a010c7d01b50e0d17dc79c8": {
+            "balance": "0x21e19e0c9bab2400000"
+        },
+        "90f79bf6eb2c4f870365e785982e1f101e93b906": {
+            "balance": "0x21e19e0c9bab2400000"
+        },
+        "9965507d1a55bcc2695c58ba16fb37d819b0a4dc": {
+            "balance": "0x21e19e0c9bab2400000"
+        },
+        "f39fd6e51aad88f6f4ce6ab8827279cfffb92266": {
+            "balance": "0x21e19e0c9bab2400000"
         }
     },
     "airdropHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
