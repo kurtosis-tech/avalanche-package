@@ -70,8 +70,6 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
 
         wait_for_helath(plan, node_name)
 
-        # perhaps add a wait on port here after exec
-
         bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
         bootstrap_id_file = NODE_ID_PATH.format(index)
         bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
