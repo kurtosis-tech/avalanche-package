@@ -10,6 +10,11 @@ NODE_NAME_PREFIX = "node-"
 NODE_ID_PATH = "/tmp/data/node-{0}/node_id.txt"
 BUILDER_SERVICE_NAME = "builder"
 
+# TODO make this automated
+DEFAULT_PLUGIN_NAME = "srEXiWaHuhNyGwPUi444Tu47ZEDwxTWrbQiuD7FmgSAQ6X7Dy"
+
+ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
+
 def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
     bootstrap_ips = []
     bootstrap_ids = []
@@ -87,7 +92,7 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
     for index in range(0, num_nodes):
         node_name = NODE_NAME_PREFIX + str(index)
         launch_command = launch_commands[0]
-        launch_command.append("--tracked-subnets={0}".format(subnetId))
+        launch_command.append("--track-subnets={0}".format(subnetId))
 
         plan.exec(
             service_name = node_name,
@@ -102,7 +107,12 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
             )
         )
 
-        # TODO add copying of vm
+        plan.exec(
+            service_name = node_name,
+            recipe = ExecRecipe(
+                command = ["cp", ABS_PLUGIN_DIRPATH + DEFAULT_PLUGIN_NAME, ABS_PLUGIN_DIRPATH + vmId]
+            )
+        )
 
         plan.exec(
             service_name = node_name,
