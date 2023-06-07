@@ -44,7 +44,7 @@ def launch(plan, genesis, image, node_count, expose_9650_if_one_node):
             launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
         public_ports = {}
-        if expose_9650_if_one_node:
+        if not ephemeral_ports:
             public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP", wait=None)
             public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP", wait=None)
 
