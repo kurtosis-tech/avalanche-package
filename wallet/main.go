@@ -36,7 +36,7 @@ const (
 	// validate from a minute after now
 	startTimeDelayFromNow = 1 * time.Minute
 	// validate for 14 days
-	endTimeFromStartTime = 14 * 24 * time.Hour
+	endTimeFromStartTime = 28 * 24 * time.Hour
 	// random stake weight of 200
 	stakeWeight = uint64(200)
 
@@ -46,6 +46,26 @@ const (
 	vmIdOutput         = "/tmp/subnet/vmId.txt"
 	subnetIdOutput     = "/tmp/subnet/subnetId.txt"
 	validatorIdsOutput = "/tmp/subnet/node-%d/validator_id.txt"
+)
+
+// https://github.com/ava-labs/avalanche-cli/blob/917ef2e440880d68452080b4051c3031be76b8af/pkg/elasticsubnet/config_prompt.go#L18-L38
+const (
+	defaultInitialSupply               = 240_000_000
+	defaultMaximumSupply               = 720_000_000
+	defaultMinConsumptionRate          = 0.1
+	defaultMaxConsumptionRate          = 0.12
+	defaultMinValidatorStake           = 2_000
+	defaultMaxValidatorStake           = 3_000_000
+	defaultMinStakeDurationHours       = 14 * 24
+	defaultMinStakeDurationHoursString = "14 x 24"
+	defaultMinStakeDuration            = defaultMinStakeDurationHours * time.Hour
+	defaultMaxStakeDurationHours       = 365 * 24
+	defaultMaxStakeDurationHoursString = "365 x 24"
+	defaultMaxStakeDuration            = defaultMaxStakeDurationHours * time.Hour
+	defaultMinDelegationFee            = 20_000
+	defaultMinDelegatorStake           = 25
+	defaultMaxValidatorWeightFactor    = 5
+	defaultUptimeRequirement           = 0.8
 )
 
 type wallet struct {
@@ -110,6 +130,7 @@ func main() {
 	}
 	fmt.Printf("chain created with id '%v' and vm id '%v'\n", chainId, vmID)
 
+	// disable this for elastic subnet
 	validatorIds, err := addSubnetValidators(w, subnetId, numValidatorNodes)
 	if err != nil {
 		fmt.Printf("an error occurred while adding validators: %v\n", err)
@@ -130,6 +151,11 @@ func main() {
 			os.Exit(nonZeroExitCode)
 		}
 		fmt.Printf("created asset '%v' exported with id '%v' and imported with id '%v'\n", assetId, exportId, importId)
+		transformationId, err := transformSubnet(w, subnetId, assetId)
+		if err != nil {
+			fmt.Printf("an error occurred while transforming subnet: %v\n", err)
+		}
+		fmt.Printf("transformed subnet and got transformation id '%v'\n", transformationId)
 	}
 }
 
@@ -153,6 +179,35 @@ func writeOutputs(subnetId ids.ID, vmId ids.ID, chainId ids.ID, validatorIds []i
 		return err
 	}
 	return nil
+}
+
+func addPermissionlessValidator(w *wallet, assetId ids.ID) ([]ids.ID, error) {
+	return nil, nil
+}
+
+func transformSubnet(w *wallet, subnetId ids.ID, assetId ids.ID) (ids.ID, error) {
+	ctx := context.Background()
+	transformId, err := w.pWallet.IssueTransformSubnetTx(
+		subnetId,
+		assetId,
+		defaultInitialSupply,
+		defaultMaximumSupply,
+		defaultMinConsumptionRate,
+		defaultMaxConsumptionRate,
+		defaultMinValidatorStake,
+		defaultMaxValidatorStake,
+		defaultMinStakeDuration,
+		defaultMaxStakeDuration,
+		defaultMinDelegationFee,
+		defaultMinDelegatorStake,
+		defaultMaxValidatorWeightFactor,
+		defaultUptimeRequirement,
+		common.WithContext(ctx),
+	)
+	if err != nil {
+		return ids.Empty, err
+	}
+	return transformId, err
 }
 
 func createAssetOnXChainImportToPChain(w *wallet, name string, symbol string, denomination byte, maxSupply uint64) (ids.ID, ids.ID, ids.ID, error) {
