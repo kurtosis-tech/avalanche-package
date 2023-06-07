@@ -22,4 +22,5 @@ def run(plan, args):
         "chain id": chainId,
         "vm id": vmId,
         "validator ids": validatorIds,
+        "chain-rpc-url": "{0}/ext/bc/{1}/rpc".format((chainId))
     }
