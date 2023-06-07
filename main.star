@@ -14,4 +14,10 @@ def run(plan, args):
     subnetId, chainId, vmId, validatorIds = builder_service.create_subnet(plan, first_url, node_count)
     plan.print("subnet id: {0}\nchain id: {1}\nvm id: {2}\nvalidator ids: {3}\n".format(subnetId, chainId, vmId, ", ".join(validatorIds)))
     node_launcher.restart_nodes(plan, node_count, launch_commands, subnetId, vmId)
-    return rpc_urls
+    return {
+        "rpc-urls": rpc_urls,
+        "subnet id": subnetId,
+        "chain id": chainId,
+        "vm id": vmId,
+        "validator ids": validatorIds,
+    }
