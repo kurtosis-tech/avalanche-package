@@ -220,9 +220,7 @@ func newWallet(uri string) (*wallet, error) {
 	}
 	// platform client
 	pClient := platformvm.NewClient(uri)
-	// TODO verify previous transactions - can be empty
 	pTXs := make(map[ids.ID]*txs.Tx)
-	// TODO perhaps this chain ID should be 43112 and not empty
 	pUTXOs := primary.NewChainUTXOs(constants.PlatformChainID, utxos)
 	xChainID := xCTX.BlockchainID()
 	xUTXOs := primary.NewChainUTXOs(xChainID, utxos)
