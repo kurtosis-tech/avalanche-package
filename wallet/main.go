@@ -60,8 +60,8 @@ const (
 const (
 	defaultInitialSupply            = 240_000_000
 	defaultMaximumSupply            = 720_000_000
-	defaultMinConsumptionRate       = 0.1
-	defaultMaxConsumptionRate       = 0.12
+	defaultMinConsumptionRate       = 0.1 * reward.PercentDenominator
+	defaultMaxConsumptionRate       = 0.12 * reward.PercentDenominator
 	defaultMinValidatorStake        = 2_000
 	defaultMaxValidatorStake        = 3_000_000
 	defaultMinStakeDurationHours    = 14 * 24
@@ -71,7 +71,7 @@ const (
 	defaultMinDelegationFee         = 20_000
 	defaultMinDelegatorStake        = 25
 	defaultMaxValidatorWeightFactor = 5
-	defaultUptimeRequirement        = 0.8
+	defaultUptimeRequirement        = 0.8 * reward.PercentDenominator
 )
 
 type wallet struct {
@@ -158,6 +158,7 @@ func main() {
 		transformationId, err = transformSubnet(w, subnetId, assetId)
 		if err != nil {
 			fmt.Printf("an error occurred while transforming subnet: %v\n", err)
+			os.Exit(nonZeroExitCode)
 		}
 		fmt.Printf("transformed subnet and got transformation id '%v'\n", transformationId)
 		validatorIds, err = addPermissionlessValidator(w, assetId, subnetId, numValidatorNodes)
@@ -263,18 +264,18 @@ func transformSubnet(w *wallet, subnetId ids.ID, assetId ids.ID) (ids.ID, error)
 	transformId, err := w.pWallet.IssueTransformSubnetTx(
 		subnetId,
 		assetId,
-		defaultInitialSupply,
-		defaultMaximumSupply,
-		defaultMinConsumptionRate,
-		defaultMaxConsumptionRate,
-		defaultMinValidatorStake,
-		defaultMaxValidatorStake,
+		uint64(defaultInitialSupply),
+		uint64(defaultMaximumSupply),
+		uint64(defaultMinConsumptionRate),
+		uint64(defaultMaxConsumptionRate),
+		uint64(defaultMinValidatorStake),
+		uint64(defaultMaxValidatorStake),
 		defaultMinStakeDuration,
 		defaultMaxStakeDuration,
-		defaultMinDelegationFee,
-		defaultMinDelegatorStake,
-		defaultMaxValidatorWeightFactor,
-		defaultUptimeRequirement,
+		uint32(defaultMinDelegationFee),
+		uint64(defaultMinDelegatorStake),
+		byte(defaultMaxValidatorWeightFactor),
+		uint32(defaultUptimeRequirement),
 		common.WithContext(ctx),
 	)
 	if err != nil {
