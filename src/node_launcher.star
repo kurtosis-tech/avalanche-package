@@ -106,19 +106,12 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
         node_name = NODE_NAME_PREFIX + str(index)
         launch_command = launch_commands[index]
         launch_command.append("--track-subnets={0}".format(subnetId))
-
-        # TODO run this in parallel before the restarts
-        # then do the restarts
+        
+        # have no ps or pkill; so this is a work around
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", "apt update --allow-insecure-repositories && apt-get install procps -y --allow-unauthenticated"]
-            )
-        )
-        plan.exec(
-            service_name = node_name,
-            recipe = ExecRecipe(
-                command = ["pkill", "avalanchego"]
+                command = ["/bin/sh", "-c", """grep -l 'avalanchego' /proc/*/status | awk -F'/' '{print $3}' | while read -r pid; do kill -9 "$pid"; done"""]
             )
         )
 
