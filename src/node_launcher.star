@@ -23,8 +23,9 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
     nodes = []
     launch_commands = []
 
-    for index in range(0, node_count):        
-
+    services = {}
+    plan.print("Creating all the avalanche containers paralllely")
+    for index in range (0, node_count):
         node_name = NODE_NAME_PREFIX + str(index)
 
         node_data_dirpath =  ABS_DATA_DIRPATH + node_name + "/"
@@ -63,25 +64,25 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
             public_ports = public_ports,
         )
 
-        node = plan.add_service(
-            name = node_name,
-            config = node_service_config,
-        )
+        bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
+        bootstrap_id_file = NODE_ID_PATH.format(index)
+        bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
+        bootstrap_ids.append(bootstrap_id)
+        services[node_name] = node_service_config
+        launch_commands.append(launch_node_cmd)
 
+    nodes = plan.add_services(services)
+
+
+    for index in range(0, node_count):   
+        node_name = NODE_NAME_PREFIX + str(index)     
+        launch_node_cmd = launch_commands[index]
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
                 command = ["/bin/sh", "-c", " ".join(launch_node_cmd) + " >/dev/null 2>&1 &"],
             )
         )
-
-        bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
-        bootstrap_id_file = NODE_ID_PATH.format(index)
-        bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
-        bootstrap_ids.append(bootstrap_id)
-
-        nodes.append(node)
-        launch_commands.append(launch_node_cmd)
 
     wait_for_helath(plan, "node-"+ str(node_count-1))
 
