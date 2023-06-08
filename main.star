@@ -29,7 +29,7 @@ def run(plan, args):
         output["subnet id"] = subnetId
         output["chain id"] = chainId
         output["vm id"] = vmId
-        output["validator ids"] = validatorIds,
+        output["validator ids"] = validatorIds
         output["chain-rpc-url"] = "{0}/ext/bc/{1}/rpc".format(rpc_urls[0], chainId)
         # TODO remove this as this is hardcoded
         output["chain genesis id"] = "13123"
@@ -40,3 +40,4 @@ def run(plan, args):
             output["elastic config"]["export id"] = exportId
             output["elastic config"]["import id"] = importId
             output["elastic config"]["token symbol"] = "FOO"
+    return output

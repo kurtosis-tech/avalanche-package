@@ -8,6 +8,7 @@ executors:
 jobs:
   run_starlark:
     executor: ubuntu_vm
+    # leaving this here as i sometime test with larger number of nodes
     resource_class: xlarge
     steps:
 
@@ -24,12 +25,57 @@ jobs:
 
       - run: |
           kurtosis run ${PWD}
+
+  without_subnets:
+    executor: ubuntu_vm
+    steps:
+
+      # Set up Kurtosis
+      - run: |
+          echo "deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /" | sudo tee /etc/apt/sources.list.d/kurtosis.list
+          sudo apt update
+          sudo apt install kurtosis-cli
+      - checkout
+
+      - run: kurtosis analytics disable
+
+      - run: kurtosis engine restart
+
+      - run: |
+          kurtosis run ${PWD} '{"dont_start_subnets": true}'
+
+  with_elastic_subnets:
+    executor: ubuntu_vm
+    steps:
+
+      # Set up Kurtosis
+      - run: |
+          echo "deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /" | sudo tee /etc/apt/sources.list.d/kurtosis.list
+          sudo apt update
+          sudo apt install kurtosis-cli
+      - checkout
+
+      - run: kurtosis analytics disable
+
+      - run: kurtosis engine restart
+
+      - run: |
+          kurtosis run ${PWD} '{"is_elastic": true}'
+
   
 workflows:
   build:
     jobs:
       # -- PR check jobs ------------------------------------------
       - run_starlark:
+          filters:
+            branches:
+              ignore:
+      - without_subnets:
+          filters:
+            branches:
+              ignore:
+      - with_elastic_subnets:
           filters:
             branches:
               ignore:
