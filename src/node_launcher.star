@@ -34,6 +34,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
         launch_node_cmd = [
             "nohup",
             "/avalanchego/build/" + EXECUTABLE_PATH,
+            "--api-admin-enabled=true",
             "--genesis=/tmp/data/genesis.json", 
             "--data-dir=" + node_data_dirpath,
             "--config-file=" + node_config_filepath,
