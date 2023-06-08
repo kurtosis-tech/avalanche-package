@@ -243,7 +243,7 @@ func addPermissionlessValidator(w *wallet, subnetId ids.ID, assetId ids.ID, numV
 					NodeID: nodeId,
 					Start:  uint64(startTime.Unix()),
 					End:    uint64(endTime.Unix()),
-					Wght:   stakeWeight,
+					Wght:   6000,
 				},
 				Subnet: subnetId,
 			},

@@ -9,7 +9,7 @@ def parse_input(input_args):
 def get_default_input_args():
     default_node_cfg = get_default_node_cfg()
     return {
-        "is_elastic": False,
+        "is_elastic": True,
         "ephemeral_ports": True,
         "avalanchego_image": DEFAULT_AVALANCHEGO_IMAGE,
         "node_config": default_node_cfg,
