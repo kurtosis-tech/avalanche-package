@@ -23,8 +23,9 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
     nodes = []
     launch_commands = []
 
-    for index in range(0, node_count):        
-
+    services = {}
+    plan.print("Creating all the avalanche containers paralllely")
+    for index in range (0, node_count):
         node_name = NODE_NAME_PREFIX + str(index)
 
         node_data_dirpath =  ABS_DATA_DIRPATH + node_name + "/"
@@ -40,10 +41,6 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
             "--staking-port=" + str(STAKING_PORT_NUM),
             "--http-port="+ str(RPC_PORT_NUM),
         ]
-
-        if bootstrap_ips:
-            launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
-            launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
         public_ports = {}
         if not ephemeral_ports:
@@ -63,10 +60,23 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
             public_ports = public_ports,
         )
 
-        node = plan.add_service(
-            name = node_name,
-            config = node_service_config,
-        )
+        services[node_name] = node_service_config
+        launch_commands.append(launch_node_cmd)
+
+
+    nodes = plan.add_services(services)
+
+
+    for index in range(0, node_count):
+        node_name = NODE_NAME_PREFIX + str(index)     
+
+        node = nodes[node_name]
+        launch_node_cmd = launch_commands[index]
+
+        if bootstrap_ips:
+            launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
+            launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
+
 
         plan.exec(
             service_name = node_name,
@@ -80,12 +90,10 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
         bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
         bootstrap_ids.append(bootstrap_id)
 
-        nodes.append(node)
-        launch_commands.append(launch_node_cmd)
 
     wait_for_helath(plan, "node-"+ str(node_count-1))
 
-    rpc_urls = ["http://{0}:{1}".format(node.ip_address, RPC_PORT_NUM) for node in nodes]
+    rpc_urls = ["http://{0}:{1}".format(node.ip_address, RPC_PORT_NUM) for _, node in nodes.items()]
     public_rpc_urls = []
     if not ephemeral_ports:
         public_rpc_urls = ["http://{0}:{1}".format(PUBLIC_IP, RPC_PORT_NUM + index*2) for index, node in enumerate(nodes)]
@@ -98,17 +106,12 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
         node_name = NODE_NAME_PREFIX + str(index)
         launch_command = launch_commands[index]
         launch_command.append("--track-subnets={0}".format(subnetId))
-
+        
+        # have no ps or pkill; so this is a work around
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", "apt update --allow-insecure-repositories && apt-get install procps -y --allow-unauthenticated"]
-            )
-        )
-        plan.exec(
-            service_name = node_name,
-            recipe = ExecRecipe(
-                command = ["pkill", "avalanchego"]
+                command = ["/bin/sh", "-c", """grep -l 'avalanchego' /proc/*/status | awk -F'/' '{print $3}' | while read -r pid; do kill -9 "$pid"; done"""]
             )
         )
 
