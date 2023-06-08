@@ -216,7 +216,7 @@ func writeOutputs(subnetId ids.ID, vmId ids.ID, chainId ids.ID, validatorIds []i
 	return nil
 }
 
-func addPermissionlessValidator(w *wallet, subnetId ids.ID, assetId ids.ID, numValidators int) ([]ids.ID, error) {
+func addPermissionlessValidator(w *wallet, assetId ids.ID, subnetId ids.ID, numValidators int) ([]ids.ID, error) {
 	ctx := context.Background()
 	var validatorIDs []ids.ID
 	startTime := time.Now().Add(startTimeDelayFromNow)
