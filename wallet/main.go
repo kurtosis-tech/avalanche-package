@@ -54,9 +54,6 @@ const (
 	exportIdOutput         = "/tmp/subnet/exportId.txt"
 	importIdOutput         = "/tmp/subnet/importId.txt"
 	transformationIdOutput = "/tmp/subnet/transformationId.txt"
-
-	// staking key
-	stakingNodeKeyPath = "/tmp/data/node-%d/staking/staker.key"
 )
 
 // https://github.com/ava-labs/avalanche-cli/blob/917ef2e440880d68452080b4051c3031be76b8af/pkg/elasticsubnet/config_prompt.go#L18-L38

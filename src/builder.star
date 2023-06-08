@@ -78,6 +78,11 @@ def create_subnet(plan, uri, num_nodes, is_elastic, vmName = "testNet", chainNam
     subnetId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/subnetId.txt")
     chainId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/chainId.txt")
     vmId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/vmId.txt")
+    assetId = read_file_from_service(plan, service_name, "/tmp/subnet/assetId.txt")
+    transformationId = read_file_from_service(plan, service_name, "/tmp/subnet/transformationId.txt")
+    exportId = read_file_from_service(plan, service_name, "/tmp/subnet/exportId.txt")
+    importId = read_file_from_service(plan, service_name, "/tmp/subnet/importId.txt")
+
 
     validatorIds = []
     for index in range (0, num_nodes):
