@@ -42,10 +42,6 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
             "--http-port="+ str(RPC_PORT_NUM),
         ]
 
-        if bootstrap_ips:
-            launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
-            launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
-
         public_ports = {}
         if not ephemeral_ports:
             public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP", wait=None)
@@ -64,19 +60,24 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
             public_ports = public_ports,
         )
 
-        bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
-        bootstrap_id_file = NODE_ID_PATH.format(index)
-        bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
-        bootstrap_ids.append(bootstrap_id)
         services[node_name] = node_service_config
         launch_commands.append(launch_node_cmd)
+
 
     nodes = plan.add_services(services)
 
 
-    for index in range(0, node_count):   
+    for index in range(0, node_count):
         node_name = NODE_NAME_PREFIX + str(index)     
+
+        node = nodes[node_name]
         launch_node_cmd = launch_commands[index]
+
+        if bootstrap_ips:
+            launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
+            launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
+
+
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
@@ -84,9 +85,15 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
             )
         )
 
+        bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
+        bootstrap_id_file = NODE_ID_PATH.format(index)
+        bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
+        bootstrap_ids.append(bootstrap_id)
+
+
     wait_for_helath(plan, "node-"+ str(node_count-1))
 
-    rpc_urls = ["http://{0}:{1}".format(node.ip_address, RPC_PORT_NUM) for node in nodes]
+    rpc_urls = ["http://{0}:{1}".format(node.ip_address, RPC_PORT_NUM) for _, node in nodes.items()]
     public_rpc_urls = []
     if not ephemeral_ports:
         public_rpc_urls = ["http://{0}:{1}".format(PUBLIC_IP, RPC_PORT_NUM + index*2) for index, node in enumerate(nodes)]
