@@ -17,6 +17,9 @@ ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
 PUBLIC_IP = "127.0.0.1"
 
+# TODO make this passable
+DEFAULT_CHAIN_NAME = "testChain"
+
 def launch(plan, genesis, image, node_count, ephemeral_ports):
     bootstrap_ips = []
     bootstrap_ids = []
@@ -102,7 +105,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
     return rpc_urls, public_rpc_urls, launch_commands
 
 
-def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
+def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId, chainId):
     for index in range(0, num_nodes):
         node_name = NODE_NAME_PREFIX + str(index)
         launch_command = launch_commands[index]
@@ -131,6 +134,34 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
         )
 
     wait_for_helath(plan, "node-"+ str(num_nodes-1))
+
+    for index in range(0, num_nodes):
+        node_name = NODE_NAME_PREFIX + str(index)
+        set_chain_alias(plan, node_name, chainId)
+
+
+def set_chain_alias(plan, node_name, chainId):
+    response = plan.wait(
+        service_name=node_name,
+        recipe=PostHttpRequestRecipe(
+            port_id=RPC_PORT_ID,
+            endpoint="/ext/health",
+            content_type = "application/json",
+            body= """{
+                "jsonrpc":"2.0",
+                "id"     :1,
+                "method" :"admin.aliasChain",
+                "params": {
+                    "chain":"{0}",
+                    "alias":"{1}"
+                }
+            }""".format(chainId, DEFAULT_CHAIN_NAME),
+        ),
+        field="code",
+        assertion="==",
+        target_value=200,
+        timeout="1m",
+    )
 
 
 def wait_for_helath(plan, node_name):
