@@ -145,7 +145,7 @@ def set_chain_alias(plan, node_name, chainId):
         service_name=node_name,
         recipe=PostHttpRequestRecipe(
             port_id=RPC_PORT_ID,
-            endpoint="/ext/health",
+            endpoint="/ext/admin",
             content_type = "application/json",
             body= "{\"jsonrpc\":\"2.0\", \"id\":1,\"method\" :\"admin.aliasChain\",\"params\":{\"chain\":\"{"+chainId+"\",\"alias\":\""+ DEFAULT_CHAIN_NAME +"\"}}"
         ),
