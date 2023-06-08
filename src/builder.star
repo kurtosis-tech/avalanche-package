@@ -88,7 +88,7 @@ def create_subnet(plan, uri, num_nodes, is_elastic, vmName = "testNet", chainNam
     for index in range (0, num_nodes):
         validatorIds.append(read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/node-{0}/validator_id.txt".format(index)))
     
-    return subnetId, chainId, vmId, validatorIds
+    return subnetId, chainId, vmId, validatorIds, assetId, transformationId, exportId, importId
 
 
 # reads the given file in service without the new line

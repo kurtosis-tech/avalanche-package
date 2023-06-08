@@ -22,7 +22,7 @@ def run(plan, args):
     output = {}
     output["rpc-urls"] = rpc_urls
     if not dont_start_subnets:
-        subnetId, chainId, vmId, validatorIds = builder_service.create_subnet(plan, first_private_rpc_url, node_count, is_elastic)
+        subnetId, chainId, vmId, validatorIds, assetId, transformationId, exportId, importId = builder_service.create_subnet(plan, first_private_rpc_url, node_count, is_elastic)
         plan.print("subnet id: {0}\nchain id: {1}\nvm id: {2}\nvalidator ids: {3}\n".format(subnetId, chainId, vmId, ", ".join(validatorIds)))
         node_launcher.restart_nodes(plan, node_count, launch_commands, subnetId, vmId)
         output["rpc-urls"] = rpc_urls
@@ -31,3 +31,12 @@ def run(plan, args):
         output["vm id"] = vmId
         output["validator ids"] = validatorIds,
         output["chain-rpc-url"] = "{0}/ext/bc/{1}/rpc".format(rpc_urls[0], chainId)
+        # TODO remove this as this is hardcoded
+        output["chain genesis id"] = "13123"
+        if is_elastic:
+            output["elastic config"] = {}
+            output["elastic config"]["asset id"] = assetId
+            output["elastic config"]["transformation id"] = transformationId
+            output["elastic config"]["export id"] = exportId
+            output["elastic config"]["import id"] = importId
+            output["elastic config"]["token symbol"] = "FOO"
