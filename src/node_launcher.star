@@ -107,6 +107,8 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
         launch_command = launch_commands[index]
         launch_command.append("--track-subnets={0}".format(subnetId))
 
+        # TODO run this in parallel before the restarts
+        # then do the restarts
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
