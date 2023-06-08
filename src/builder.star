@@ -65,13 +65,13 @@ def genesis(plan, network_id, num_nodes):
 
     return genesis_data
 
-# TODO figure out how chainName here maps to chainId in cli
-# for now mapped to genesis.json
-def create_subnet(plan, uri, num_nodes, vmName = "testNet", chainName = "13123"):
+
+# TODO make vmName and chainName passable
+def create_subnet(plan, uri, num_nodes, is_elastic, vmName = "testNet", chainName = "testChain"):
     plan.exec(
         service_name = BUILDER_SERVICE_NAME,
         recipe = ExecRecipe(
-            command = ["/bin/sh", "-c", "cd /tmp/wallet && go run main.go {0} {1} {2} {3}".format(uri, vmName, chainName, num_nodes)]
+            command = ["/bin/sh", "-c", "cd /tmp/wallet && go run main.go {0} {1} {2} {3} {4}".format(uri, vmName, chainName, num_nodes, is_elastic)]
         )
     )
 
@@ -79,11 +79,19 @@ def create_subnet(plan, uri, num_nodes, vmName = "testNet", chainName = "13123")
     chainId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/chainId.txt")
     vmId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/vmId.txt")
 
+    assetId, transformationId, exportId, importId = None, None, None, None
+    if is_elastic:
+        assetId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/assetId.txt")
+        transformationId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/transformationId.txt")
+        exportId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/exportId.txt")
+        importId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/importId.txt")
+
+
     validatorIds = []
     for index in range (0, num_nodes):
         validatorIds.append(read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/node-{0}/validator_id.txt".format(index)))
     
-    return subnetId, chainId, vmId, validatorIds
+    return subnetId, chainId, vmId, validatorIds, assetId, transformationId, exportId, importId
 
 
 # reads the given file in service without the new line
