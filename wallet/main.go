@@ -84,7 +84,7 @@ type wallet struct {
 }
 
 var (
-	defaultPoll = common.WithPollFrequency(100 * time.Millisecond)
+	defaultPoll = common.WithPollFrequency(500 * time.Millisecond)
 )
 
 func main() {
