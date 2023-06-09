@@ -148,7 +148,7 @@ def wait_for_health(plan, node_name):
         field="extract.healthy",
         assertion="==",
         target_value=True,
-        timeout="1m",
+        timeout="5m",
     )
 
 
