@@ -85,6 +85,14 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
             )
         )
 
+        # TODO remove this hardcoding
+        plan.exec(
+            service_name = node_name,
+            recipe = ExecRecipe(
+                command = ["cp", ABS_PLUGIN_DIRPATH + DEFAULT_PLUGIN_NAME, ABS_PLUGIN_DIRPATH + "tGBrM7iZGgNZvqPiwD9oD716rVRR9PiB6BFuG3ot3SP54ie8K"]
+            )
+        )
+
         if len(bootstrap_ips) < 5:
             bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
             bootstrap_id_file = NODE_ID_PATH.format(index)
@@ -113,13 +121,6 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
             service_name = node_name,
             recipe = ExecRecipe(
                 command = ["/bin/sh", "-c", """grep -l 'avalanchego' /proc/*/status | awk -F'/' '{print $3}' | while read -r pid; do kill -9 "$pid"; done"""]
-            )
-        )
-
-        plan.exec(
-            service_name = node_name,
-            recipe = ExecRecipe(
-                command = ["cp", ABS_PLUGIN_DIRPATH + DEFAULT_PLUGIN_NAME, ABS_PLUGIN_DIRPATH + vmId]
             )
         )
 
