@@ -340,6 +340,7 @@ func createAssetOnXChainImportToPChain(w *wallet, name string, symbol string, de
 }
 
 func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.ID, error) {
+	ctx := context.Background()
 	var validatorIDs []ids.ID
 	startTime := time.Now().Add(startTimeDelayFromNow)
 	endTime := startTime.Add(endTimeFromStartTime)
@@ -363,6 +364,8 @@ func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.I
 				},
 				Subnet: subnetId,
 			},
+			common.WithContext(ctx),
+			defaultPoll,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("an error occurred while adding node '%v' as validator: %v", index, err)
