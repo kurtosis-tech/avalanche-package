@@ -93,11 +93,10 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
             )
         )
 
-        if len(bootstrap_ips) < 5:
-            bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
-            bootstrap_id_file = NODE_ID_PATH.format(index)
-            bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
-            bootstrap_ids.append(bootstrap_id)
+        bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
+        bootstrap_id_file = NODE_ID_PATH.format(index)
+        bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
+        bootstrap_ids.append(bootstrap_id)
 
 
     wait_for_health(plan, "node-"+ str(node_count-1))
