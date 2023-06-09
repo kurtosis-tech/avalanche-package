@@ -4,7 +4,7 @@ STAKING_PORT_NUM = 9651
 STAKING_PORT_ID = "staking"
 
 EXECUTABLE_PATH = "avalanchego"
-ABS_DATA_DIRPATH= "/tmp/data/"
+ABS_DATA_DIRPATH= "/tmp/tmp/data/"
 NODE_NAME_PREFIX = "node-"
 
 NODE_ID_PATH = "/tmp/data/node-{0}/node_id.txt"
@@ -34,7 +34,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
         launch_node_cmd = [
             "nohup",
             "/avalanchego/build/" + EXECUTABLE_PATH,
-            "--genesis=/tmp/data/genesis.json", 
+            "--genesis=/tmp/tmp/data/genesis.json", 
             "--data-dir=" + node_data_dirpath,
             "--config-file=" + node_config_filepath,
             "--http-host=0.0.0.0",
