@@ -91,7 +91,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
         bootstrap_ids.append(bootstrap_id)
 
 
-    wait_for_helath(plan, "node-"+ str(node_count-1))
+    wait_for_health(plan, "node-"+ str(node_count-1))
 
     rpc_urls = ["http://{0}:{1}".format(node.ip_address, RPC_PORT_NUM) for _, node in nodes.items()]
     public_rpc_urls = []
@@ -129,10 +129,10 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
             )
         )
 
-    wait_for_helath(plan, "node-"+ str(num_nodes-1))
+    wait_for_health(plan, "node-"+ str(num_nodes-1))
 
 
-def wait_for_helath(plan, node_name):
+def wait_for_health(plan, node_name):
     response = plan.wait(
         service_name=node_name,
         recipe=PostHttpRequestRecipe(
