@@ -342,8 +342,6 @@ func createAssetOnXChainImportToPChain(w *wallet, name string, symbol string, de
 func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.ID, error) {
 	ctx := context.Background()
 	var validatorIDs []ids.ID
-	startTime := time.Now().Add(startTimeDelayFromNow)
-	endTime := startTime.Add(endTimeFromStartTime)
 	for index := 0; index < numValidators; index++ {
 		nodeIdPath := fmt.Sprintf(nodeIdPathFormat, index)
 		nodeIdBytes, err := os.ReadFile(nodeIdPath)
@@ -354,6 +352,8 @@ func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.I
 		if err != nil {
 			return nil, fmt.Errorf("couldn't convert '%v' to node id", string(nodeIdBytes))
 		}
+		startTime := time.Now().Add(startTimeDelayFromNow)
+		endTime := startTime.Add(endTimeFromStartTime)
 		validatorId, err := w.pWallet.IssueAddSubnetValidatorTx(
 			&txs.SubnetValidator{
 				Validator: txs.Validator{
