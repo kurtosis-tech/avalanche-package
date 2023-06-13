@@ -45,13 +45,13 @@ func main() {
 
 	fmt.Printf("Have a total of '%v' nodes to generate and network id '%v'\n", numNodes, networkId)
 	// Every Node is a validator node for now
-	var genesisValidators []ids.NodeID
 
 	var wg sync.WaitGroup
-	wg.Add(numNodes)
-
+	genesisValidators := make([]ids.NodeID, numNodes)
 	for index := 0; index < numNodes; index++ {
 		go func(index int) {
+			wg.Add(1)
+			defer wg.Done()
 			keyPath := fmt.Sprintf(stakingNodeKeyPath, index)
 			certPath := fmt.Sprintf(stakingNodeCertPath, index)
 			err = staking.InitNodeStakingKeyPair(keyPath, certPath)
@@ -71,8 +71,8 @@ func main() {
 				os.Exit(nonZeroExitCode)
 			}
 			fmt.Printf("node '%v' has node id '%v'\n", index, nodeId)
-			genesisValidators = append(genesisValidators, nodeId)
-		}()
+			genesisValidators[index] = nodeId
+		}(index)
 	}
 
 	wg.Wait()
