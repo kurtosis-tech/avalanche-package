@@ -129,7 +129,7 @@ def restart_nodes(plan, num_nodes, launch_commands, subnetId, vmId):
             )
         )
 
-    wait_for_helath(plan, "node-"+ str(num_nodes-1))
+    wait_for_health(plan, "node-"+ str(num_nodes-1))
 
 
 def wait_for_health(plan, node_name):
