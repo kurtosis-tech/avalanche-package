@@ -36,7 +36,7 @@ const (
 	nodeIdPathFormat       = "/tmp/data/node-%d/node_id.txt"
 
 	// validate from a minute after now
-	startTimeDelayFromNow = 7 * time.Minute
+	startTimeDelayFromNow = 10 * time.Minute
 	// validate for 14 days
 	endTimeFromStartTime = 28 * 24 * time.Hour
 	// random stake weight of 200
