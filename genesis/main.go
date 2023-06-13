@@ -52,7 +52,6 @@ func main() {
 	for index := 0; index < numNodes; index++ {
 		go func(index int) {
 			defer wg.Done()
-			fmt.Printf("lets go habibi")
 			keyPath := fmt.Sprintf(stakingNodeKeyPath, index)
 			certPath := fmt.Sprintf(stakingNodeCertPath, index)
 			err = staking.InitNodeStakingKeyPair(keyPath, certPath)
