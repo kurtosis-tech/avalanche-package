@@ -9,6 +9,7 @@ import (
 	"github.com/ava-labs/avalanchego/utils/perms"
 	"os"
 	"strconv"
+	"sync"
 )
 
 const (
@@ -46,28 +47,35 @@ func main() {
 	// Every Node is a validator node for now
 	var genesisValidators []ids.NodeID
 
+	var wg sync.WaitGroup
+	wg.Add(numNodes)
+
 	for index := 0; index < numNodes; index++ {
-		keyPath := fmt.Sprintf(stakingNodeKeyPath, index)
-		certPath := fmt.Sprintf(stakingNodeCertPath, index)
-		err = staking.InitNodeStakingKeyPair(keyPath, certPath)
-		if err != nil {
-			fmt.Printf("An error occurred while generating keys for node %v: %v\n", index, err)
-			os.Exit(nonZeroExitCode)
-		}
-		fmt.Printf("Gnerated key and cert for node '%v' at '%v', '%v\n", index, keyPath, certPath)
-		cert, err := staking.LoadTLSCertFromFiles(keyPath, certPath)
-		if err != nil {
-			fmt.Printf("an error occurred while loading cert pair for node '%v': %v\n", index, err)
-			os.Exit(nonZeroExitCode)
-		}
-		nodeId := ids.NodeIDFromCert(cert.Leaf)
-		if err = os.WriteFile(fmt.Sprintf(nodeIdPath, index), []byte(nodeId.String()), perms.ReadOnly); err != nil {
-			fmt.Printf("an error occurred while writing out node id for node '%v': %v", index, err)
-			os.Exit(nonZeroExitCode)
-		}
-		fmt.Printf("node '%v' has node id '%v'\n", index, nodeId)
-		genesisValidators = append(genesisValidators, nodeId)
+		go func(index int) {
+			keyPath := fmt.Sprintf(stakingNodeKeyPath, index)
+			certPath := fmt.Sprintf(stakingNodeCertPath, index)
+			err = staking.InitNodeStakingKeyPair(keyPath, certPath)
+			if err != nil {
+				fmt.Printf("An error occurred while generating keys for node %v: %v\n", index, err)
+				os.Exit(nonZeroExitCode)
+			}
+			fmt.Printf("Gnerated key and cert for node '%v' at '%v', '%v\n", index, keyPath, certPath)
+			cert, err := staking.LoadTLSCertFromFiles(keyPath, certPath)
+			if err != nil {
+				fmt.Printf("an error occurred while loading cert pair for node '%v': %v\n", index, err)
+				os.Exit(nonZeroExitCode)
+			}
+			nodeId := ids.NodeIDFromCert(cert.Leaf)
+			if err = os.WriteFile(fmt.Sprintf(nodeIdPath, index), []byte(nodeId.String()), perms.ReadOnly); err != nil {
+				fmt.Printf("an error occurred while writing out node id for node '%v': %v", index, err)
+				os.Exit(nonZeroExitCode)
+			}
+			fmt.Printf("node '%v' has node id '%v'\n", index, nodeId)
+			genesisValidators = append(genesisValidators, nodeId)
+		}()
 	}
+
+	wg.Wait()
 
 	fmt.Printf("generated '%v' nodes\n", len(genesisValidators))
 
