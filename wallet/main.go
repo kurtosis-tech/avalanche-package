@@ -36,7 +36,7 @@ const (
 	nodeIdPathFormat       = "/tmp/data/node-%d/node_id.txt"
 
 	// validate from a minute after now
-	startTimeDelayFromNow = 1 * time.Minute
+	startTimeDelayFromNow = 10 * time.Minute
 	// validate for 14 days
 	endTimeFromStartTime = 28 * 24 * time.Hour
 	// random stake weight of 200
@@ -84,7 +84,7 @@ type wallet struct {
 }
 
 var (
-	defaultPoll = common.WithPollFrequency(100 * time.Millisecond)
+	defaultPoll = common.WithPollFrequency(500 * time.Millisecond)
 )
 
 func main() {
@@ -216,8 +216,6 @@ func writeOutputs(subnetId ids.ID, vmId ids.ID, chainId ids.ID, validatorIds []i
 func addPermissionlessValidator(w *wallet, assetId ids.ID, subnetId ids.ID, numValidators int) ([]ids.ID, error) {
 	ctx := context.Background()
 	var validatorIDs []ids.ID
-	startTime := time.Now().Add(startTimeDelayFromNow)
-	endTime := startTime.Add(endTimeFromStartTime)
 	owner := &secp256k1fx.OutputOwners{
 		Threshold: 1,
 		Addrs: []ids.ShortID{
@@ -234,6 +232,8 @@ func addPermissionlessValidator(w *wallet, assetId ids.ID, subnetId ids.ID, numV
 		if err != nil {
 			return nil, fmt.Errorf("couldn't convert '%v' to node id", string(nodeIdBytes))
 		}
+		startTime := time.Now().Add(startTimeDelayFromNow)
+		endTime := startTime.Add(endTimeFromStartTime)
 		validatorId, err := w.pWallet.IssueAddPermissionlessValidatorTx(
 			&txs.SubnetValidator{
 				Validator: txs.Validator{
@@ -250,6 +250,7 @@ func addPermissionlessValidator(w *wallet, assetId ids.ID, subnetId ids.ID, numV
 			&secp256k1fx.OutputOwners{},
 			reward.PercentDenominator,
 			common.WithContext(ctx),
+			defaultPoll,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("an error occurred while adding validator '%v': %v", index, err)
@@ -340,9 +341,8 @@ func createAssetOnXChainImportToPChain(w *wallet, name string, symbol string, de
 }
 
 func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.ID, error) {
+	ctx := context.Background()
 	var validatorIDs []ids.ID
-	startTime := time.Now().Add(startTimeDelayFromNow)
-	endTime := startTime.Add(endTimeFromStartTime)
 	for index := 0; index < numValidators; index++ {
 		nodeIdPath := fmt.Sprintf(nodeIdPathFormat, index)
 		nodeIdBytes, err := os.ReadFile(nodeIdPath)
@@ -353,6 +353,8 @@ func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.I
 		if err != nil {
 			return nil, fmt.Errorf("couldn't convert '%v' to node id", string(nodeIdBytes))
 		}
+		startTime := time.Now().Add(startTimeDelayFromNow)
+		endTime := startTime.Add(endTimeFromStartTime)
 		validatorId, err := w.pWallet.IssueAddSubnetValidatorTx(
 			&txs.SubnetValidator{
 				Validator: txs.Validator{
@@ -363,6 +365,8 @@ func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.I
 				},
 				Subnet: subnetId,
 			},
+			common.WithContext(ctx),
+			defaultPoll,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("an error occurred while adding node '%v' as validator: %v", index, err)
