@@ -216,8 +216,6 @@ func writeOutputs(subnetId ids.ID, vmId ids.ID, chainId ids.ID, validatorIds []i
 func addPermissionlessValidator(w *wallet, assetId ids.ID, subnetId ids.ID, numValidators int) ([]ids.ID, error) {
 	ctx := context.Background()
 	var validatorIDs []ids.ID
-	startTime := time.Now().Add(startTimeDelayFromNow)
-	endTime := startTime.Add(endTimeFromStartTime)
 	owner := &secp256k1fx.OutputOwners{
 		Threshold: 1,
 		Addrs: []ids.ShortID{
@@ -234,6 +232,8 @@ func addPermissionlessValidator(w *wallet, assetId ids.ID, subnetId ids.ID, numV
 		if err != nil {
 			return nil, fmt.Errorf("couldn't convert '%v' to node id", string(nodeIdBytes))
 		}
+		startTime := time.Now().Add(startTimeDelayFromNow)
+		endTime := startTime.Add(endTimeFromStartTime)
 		validatorId, err := w.pWallet.IssueAddPermissionlessValidatorTx(
 			&txs.SubnetValidator{
 				Validator: txs.Validator{
@@ -250,6 +250,7 @@ func addPermissionlessValidator(w *wallet, assetId ids.ID, subnetId ids.ID, numV
 			&secp256k1fx.OutputOwners{},
 			reward.PercentDenominator,
 			common.WithContext(ctx),
+			defaultPoll,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("an error occurred while adding validator '%v': %v", index, err)

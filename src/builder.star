@@ -71,21 +71,7 @@ def create_subnet(plan, uri, num_nodes, is_elastic, vmName = "testNet", chainNam
     plan.exec(
         service_name = BUILDER_SERVICE_NAME,
         recipe = ExecRecipe(
-            command = ["date"]
-        )
-    )
-
-    plan.exec(
-        service_name = BUILDER_SERVICE_NAME,
-        recipe = ExecRecipe(
             command = ["/bin/sh", "-c", "cd /tmp/wallet && go run main.go {0} {1} {2} {3} {4}".format(uri, vmName, chainName, num_nodes, is_elastic)]
-        )
-    )
-
-    plan.exec(
-        service_name = BUILDER_SERVICE_NAME,
-        recipe = ExecRecipe(
-            command = ["date"]
         )
     )
 
