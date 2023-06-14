@@ -78,13 +78,6 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
             launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
 
-        plan.exec(
-            service_name = node_name,
-            recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", " ".join(launch_node_cmd) + " >/dev/null 2>&1 &"],
-            )
-        )
-
         # TODO remove this hardcoding
         plan.exec(
             service_name = node_name,
@@ -92,6 +85,14 @@ def launch(plan, genesis, image, node_count, ephemeral_ports):
                 command = ["cp", ABS_PLUGIN_DIRPATH + DEFAULT_PLUGIN_NAME, ABS_PLUGIN_DIRPATH + "tGBrM7iZGgNZvqPiwD9oD716rVRR9PiB6BFuG3ot3SP54ie8K"]
             )
         )
+
+        plan.exec(
+            service_name = node_name,
+            recipe = ExecRecipe(
+                command = ["/bin/sh", "-c", " ".join(launch_node_cmd) + " >/dev/null 2>&1 &"],
+            )
+        )
+
 
         bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
         bootstrap_id_file = NODE_ID_PATH.format(index)
