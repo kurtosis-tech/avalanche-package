@@ -10,12 +10,14 @@ def run(plan, args):
     ephemeral_ports = args_with_right_defaults["ephemeral_ports"]
     is_elastic = args_with_right_defaults["is_elastic"]
     dont_start_subnets = args_with_right_defaults["dont_start_subnets"]
+    min_cpu =  args_with_right_defaults["min_cpu"]
+    min_memory =  args_with_right_defaults["min_memory"]
     if not ephemeral_ports:
         plan.print("Warning - Ephemeral ports have been disabled will be publishing first node rpc on 9650 and staking on 9651, this can break due to port clash!")
     # make network_id 1337 passable and match the node config in node_launcher
     builder_service.init(plan, "1337")
     genesis = builder_service.genesis(plan, "1337" ,node_count)
-    rpc_urls, public_rpc_urls, launch_commands = node_launcher.launch(plan, genesis, args_with_right_defaults["avalanchego_image"], node_count, ephemeral_ports)
+    rpc_urls, public_rpc_urls, launch_commands = node_launcher.launch(plan, genesis, args_with_right_defaults["avalanchego_image"], node_count, ephemeral_ports, min_cpu, min_memory)
     first_private_rpc_url = rpc_urls[0]
     if public_rpc_urls:
         rpc_urls = public_rpc_urls
