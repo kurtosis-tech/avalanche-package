@@ -14,7 +14,11 @@ def get_default_input_args():
         "ephemeral_ports": True,
         "avalanchego_image": DEFAULT_AVALANCHEGO_IMAGE,
         "node_config": default_node_cfg,
-        "node_count": 5
+        "node_count": 5,
+        # in milli cores 1000 millicores is 1 core
+        "min_cpu": 0,
+        # in megabytes
+        "min_memory": 0,
     }
 
 # TODO figure out why stakng is disabled
