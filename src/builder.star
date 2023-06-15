@@ -67,7 +67,7 @@ def genesis(plan, network_id, num_nodes):
 
 
 # TODO make vmName and chainName passable
-def create_subnet(plan, uri, num_nodes, is_elastic, vmName = "testNet", chainName = "testChain"):
+def create_subnet(plan, uri, num_nodes, is_elastic, vmName, chainName):
     plan.exec(
         service_name = BUILDER_SERVICE_NAME,
         recipe = ExecRecipe(

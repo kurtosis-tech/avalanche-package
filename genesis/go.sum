@@ -39,6 +39,8 @@ github.com/DataDog/zstd v1.5.2/go.mod h1:g4AWEaM3yOg3HYfnJ3YIawPnVdXJh9QME85blwS
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/aead/siphash v1.0.1/go.mod h1:Nywa3cDsYNNK3gaciGTWPwHt0wlpNV15vwmswBAUSII=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
+github.com/ava-labs/avalanche-network-runner v1.6.0 h1:WmuAYXS7a122wJ6IkhXjGsl8KLeTmn0XKCOZCdIRAOE=
+github.com/ava-labs/avalanche-network-runner v1.6.0/go.mod h1:1nhOkJRDHI0RG1zYavqRyXWnqc455mxxRPHuSJxGamI=
 github.com/ava-labs/avalanchego v1.10.2 h1:kDM2xfQDaewueUCxJUujPlbNQ91gtJfXY9Z0CYthdRc=
 github.com/ava-labs/avalanchego v1.10.2/go.mod h1:PsNLfOc9FnsnoJ8CjauclvFy6BCSVZmT05I4c9rm4a4=
 github.com/benbjohnson/clock v1.3.0 h1:ip6w0uFQkncKQ979AypyG0ER7mqUSBdKLOgAle/AT8A=

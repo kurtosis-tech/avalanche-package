@@ -19,6 +19,8 @@ def get_default_input_args():
         "min_cpu": 0,
         # in megabytes
         "min_memory": 0,
+        "vm_name": "testNet",
+        "chain_name": "testChain"
     }
 
 # TODO figure out why stakng is disabled

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/ava-labs/avalanche-network-runner/utils"
 	"github.com/ava-labs/avalanchego/genesis"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/utils/constants"
@@ -27,7 +26,7 @@ import (
 
 const (
 	uriIndex               = 1
-	vmNameIndex            = 2
+	vmIDArgIndex           = 2
 	chainNameIndex         = 3
 	numValidatorNodesIndex = 4
 	isElasticIndex         = 5
@@ -45,7 +44,6 @@ const (
 	// outputs
 	parentPath         = "/tmp/subnet/node-%d"
 	chainIdOutput      = "/tmp/subnet/chainId.txt"
-	vmIdOutput         = "/tmp/subnet/vmId.txt"
 	subnetIdOutput     = "/tmp/subnet/subnetId.txt"
 	validatorIdsOutput = "/tmp/subnet/node-%d/validator_id.txt"
 
@@ -94,7 +92,7 @@ func main() {
 	}
 
 	uri := os.Args[uriIndex]
-	vmName := os.Args[vmNameIndex]
+	vmIDStr := os.Args[vmIDArgIndex]
 	chainName := os.Args[chainNameIndex]
 	numValidatorNodesArg := os.Args[numValidatorNodesIndex]
 	numValidatorNodes, err := strconv.Atoi(numValidatorNodesArg)
@@ -108,7 +106,7 @@ func main() {
 		fmt.Printf("an error occurred converting is elastic '%v' to bool", isElastic)
 	}
 
-	fmt.Printf("trying uri '%v' vmName '%v' chainName '%v' and numValidatorNodes '%v'", uri, vmName, chainName, numValidatorNodes)
+	fmt.Printf("trying uri '%v' vmID '%v' chainName '%v' and numValidatorNodes '%v'", uri, vmIDStr, chainName, numValidatorNodes)
 
 	w, err := newWallet(uri)
 	if err != nil {
@@ -123,12 +121,10 @@ func main() {
 	}
 	fmt.Printf("subnet created created with id '%v'\n", subnetId)
 
-	vmID, err := utils.VMID(vmName)
+	vmID, err := ids.FromString(vmIDStr)
 	if err != nil {
-		fmt.Printf("an error occurred while creating vmid for vmname '%v'", vmName)
-		os.Exit(nonZeroExitCode)
+		fmt.Printf("an error occurred converting '%v' vm id string to ids.ID: %v", vmIDStr, err)
 	}
-
 	chainId, err := createBlockChain(w, subnetId, vmID, chainName)
 	if err != nil {
 		fmt.Printf("an erorr occurred while creating chain: %v\n", err)
@@ -169,14 +165,14 @@ func main() {
 		fmt.Printf("added permissionless validators with ids '%v'\n", validatorIds)
 	}
 
-	err = writeOutputs(subnetId, vmID, chainId, validatorIds, assetId, exportId, importId, transformationId, isElastic)
+	err = writeOutputs(subnetId, chainId, validatorIds, assetId, exportId, importId, transformationId, isElastic)
 	if err != nil {
 		fmt.Printf("an error occurred while writing outputs: %v\n", err)
 		os.Exit(nonZeroExitCode)
 	}
 }
 
-func writeOutputs(subnetId ids.ID, vmId ids.ID, chainId ids.ID, validatorIds []ids.ID, assetId, exportId, importId, transformationId ids.ID, isElastic bool) error {
+func writeOutputs(subnetId ids.ID, chainId ids.ID, validatorIds []ids.ID, assetId, exportId, importId, transformationId ids.ID, isElastic bool) error {
 	for index, validatorId := range validatorIds {
 		if err := os.MkdirAll(fmt.Sprintf(parentPath, index), 0700); err != nil {
 			return err
@@ -190,9 +186,6 @@ func writeOutputs(subnetId ids.ID, vmId ids.ID, chainId ids.ID, validatorIds []i
 		return err
 	}
 	if err := os.WriteFile(subnetIdOutput, []byte(subnetId.String()), perms.ReadOnly); err != nil {
-		return err
-	}
-	if err := os.WriteFile(vmIdOutput, []byte(vmId.String()), perms.ReadOnly); err != nil {
 		return err
 	}
 

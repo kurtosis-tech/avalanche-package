@@ -12,6 +12,8 @@ def run(plan, args):
     dont_start_subnets = args_with_right_defaults["dont_start_subnets"]
     min_cpu =  args_with_right_defaults["min_cpu"]
     min_memory =  args_with_right_defaults["min_memory"]
+    vmName = args_with_right_defaults["vm_name"]
+    chainName = args_with_right_defaults["chain_name"]
     if not ephemeral_ports:
         plan.print("Warning - Ephemeral ports have been disabled will be publishing first node rpc on 9650 and staking on 9651, this can break due to port clash!")
     # make network_id 1337 passable and match the node config in node_launcher
@@ -24,7 +26,7 @@ def run(plan, args):
     output = {}
     output["rpc-urls"] = rpc_urls
     if not dont_start_subnets:
-        subnetId, chainId, vmId, validatorIds, assetId, transformationId, exportId, importId = builder_service.create_subnet(plan, first_private_rpc_url, node_count, is_elastic)
+        subnetId, chainId, vmId, validatorIds, assetId, transformationId, exportId, importId = builder_service.create_subnet(plan, first_private_rpc_url, node_count, is_elastic, vmName, chainName)
         plan.print("subnet id: {0}\nchain id: {1}\nvm id: {2}\nvalidator ids: {3}\n".format(subnetId, chainId, vmId, ", ".join(validatorIds)))
         node_launcher.restart_nodes(plan, node_count, launch_commands, subnetId, vmId)
         output["rpc-urls"] = rpc_urls
