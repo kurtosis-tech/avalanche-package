@@ -21,14 +21,14 @@ def get_default_input_args():
         # in megabytes
         "min_memory": 0,
         "vm_name": "testNet",
-        "chain_name": "testChain",
+        "chain_name": "testChain",  
         "network_id": "1337"
     }
 
 # TODO figure out why stakng is disabled
 def get_default_node_cfg():
     return {
-        "network-id": "local",
+        "network-id": "1337",
         "staking-enabled": False,
         "health-check-frequency": "5s",
     }
