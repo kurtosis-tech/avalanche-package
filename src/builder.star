@@ -77,8 +77,8 @@ def create_subnet(plan, uri, num_nodes, is_elastic, vmId, chainName):
         )
     )
 
-    subnetId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/subnetId.txt")
-    chainId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/chainId.txt")
+    subnetId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/subnetId.txt")
+    chainId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/chainId.txt")
 
     assetId, transformationId, exportId, importId = None, None, None, None
     if is_elastic:
