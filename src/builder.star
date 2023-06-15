@@ -1,4 +1,5 @@
 static_files = import_module("github.com/kurtosis-tech/avalanche-package/static_files/static_files.star")
+utils = import_module("github.com/kurtosis-tech/avalanche-package/src/utils.star")
 
 GO_IMG = "golang:1.20.4"
 ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
@@ -63,7 +64,7 @@ def genesis(plan, network_id, num_nodes, vmName):
         src = "/tmp/data"
     )
 
-    vmId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/data/vmId.txt")
+    vmId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/data/vmId.txt")
 
     return genesis_data, vmId
 
@@ -81,10 +82,10 @@ def create_subnet(plan, uri, num_nodes, is_elastic, vmId, chainName):
 
     assetId, transformationId, exportId, importId = None, None, None, None
     if is_elastic:
-        assetId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/assetId.txt")
+        assetId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/assetId.txt")
         transformationId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/transformationId.txt")
-        exportId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/exportId.txt")
-        importId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/importId.txt")
+        exportId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/exportId.txt")
+        importId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/importId.txt")
 
 
     validatorIds = []
@@ -92,15 +93,3 @@ def create_subnet(plan, uri, num_nodes, is_elastic, vmId, chainName):
         validatorIds.append(read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/node-{0}/validator_id.txt".format(index)))
     
     return subnetId, chainId, validatorIds, assetId, transformationId, exportId, importId
-
-
-# reads the given file in service without the new line
-# TODO put this in utils
-def read_file_from_service(plan, service_name, filename):
-    output = plan.exec(
-        service_name = service_name,
-        recipe = ExecRecipe(
-            command = ["/bin/sh", "-c", "cat {}".format(filename)]
-        )
-    )
-    return output["output"]
