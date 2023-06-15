@@ -26,7 +26,7 @@ def run(plan, args):
     output = {}
     output["rpc-urls"] = rpc_urls
     if not dont_start_subnets:
-        subnetId, chainId, vmId, validatorIds, assetId, transformationId, exportId, importId = builder_service.create_subnet(plan, first_private_rpc_url, node_count, is_elastic, vmId, chainName)
+        subnetId, chainId, validatorIds, assetId, transformationId, exportId, importId = builder_service.create_subnet(plan, first_private_rpc_url, node_count, is_elastic, vmId, chainName)
         plan.print("subnet id: {0}\nchain id: {1}\nvm id: {2}\nvalidator ids: {3}\n".format(subnetId, chainId, vmId, ", ".join(validatorIds)))
         node_launcher.restart_nodes(plan, node_count, launch_commands, subnetId, vmId)
         output["rpc-urls"] = rpc_urls
