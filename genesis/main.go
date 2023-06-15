@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ava-labs/avalanche-network-runner/utils"
 	"github.com/ava-labs/avalanchego/genesis"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/staking"
@@ -16,10 +17,12 @@ const (
 	stakingNodeKeyPath  = "/tmp/data/node-%d/staking/staker.key"
 	stakingNodeCertPath = "/tmp/data/node-%d/staking/staker.crt"
 	nodeIdPath          = "/tmp/data/node-%d/node_id.txt"
+	vmIdPath            = "/tmp/data/vmId.txt"
 	genesisFile         = "/tmp/data/genesis.json"
+	vmNameArgIndex      = 3
 	numNodeArgIndex     = 2
 	networkIdIndex      = 1
-	minRequiredArgs     = numNodeArgIndex + 1
+	minRequiredArgs     = vmNameArgIndex + 1
 	nonZeroExitCode     = 1
 )
 
@@ -42,6 +45,8 @@ func main() {
 		fmt.Printf("An error occurred while converting networkId arg to integer: %v\n", err)
 		os.Exit(nonZeroExitCode)
 	}
+
+	vmName := os.Args[vmNameArgIndex]
 
 	fmt.Printf("Have a total of '%v' nodes to generate and network id '%v'\n", numNodes, networkId)
 	// Every Node is a validator node for now
@@ -107,4 +112,14 @@ func main() {
 		os.Exit(nonZeroExitCode)
 	}
 	fmt.Printf("generated genesis data at '%v'\n", genesisFile)
+
+	vmID, err := utils.VMID(vmName)
+	if err != nil {
+		fmt.Printf("an error occurred while creating vmid for vmname '%v'", vmName)
+		os.Exit(nonZeroExitCode)
+	}
+
+	if err := os.WriteFile(vmIdPath, []byte(vmID.String()), perms.ReadOnly); err != nil {
+		fmt.Printf("an error occurred writing vm id '%v' to file '%v': %v", vmID, vmIdPath, err)
+	}
 }

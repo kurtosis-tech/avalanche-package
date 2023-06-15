@@ -6,6 +6,7 @@ require github.com/ava-labs/avalanchego v1.10.2
 
 require (
 	github.com/DataDog/zstd v1.5.2 // indirect
+	github.com/ava-labs/avalanche-network-runner v1.6.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/btcsuite/btcd/btcutil v1.1.3 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect

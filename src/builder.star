@@ -1,4 +1,5 @@
 static_files = import_module("github.com/kurtosis-tech/avalanche-package/static_files/static_files.star")
+utils = import_module("github.com/kurtosis-tech/avalanche-package/src/utils.star")
 
 GO_IMG = "golang:1.20.4"
 ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
@@ -41,12 +42,12 @@ def init(plan, network_id):
     )
 
 
-def genesis(plan, network_id, num_nodes):
+def genesis(plan, network_id, num_nodes, vmName):
     plan.exec(
         service_name=BUILDER_SERVICE_NAME,
         recipe=ExecRecipe(
             command=[
-                "/bin/sh", "-c", "cd /tmp/genesis && go run main.go {0} {1}".format(network_id, num_nodes)]
+                "/bin/sh", "-c", "cd /tmp/genesis && go run main.go {0} {1} {2}".format(network_id, num_nodes, vmName)]
         )
     )
 
@@ -63,44 +64,32 @@ def genesis(plan, network_id, num_nodes):
         src = "/tmp/data"
     )
 
-    return genesis_data
+    vmId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/data/vmId.txt")
+
+    return genesis_data, vmId
 
 
-# TODO make vmName and chainName passable
-def create_subnet(plan, uri, num_nodes, is_elastic, vmName = "testNet", chainName = "testChain"):
+def create_subnet(plan, uri, num_nodes, is_elastic, vmId, chainName):
     plan.exec(
         service_name = BUILDER_SERVICE_NAME,
         recipe = ExecRecipe(
-            command = ["/bin/sh", "-c", "cd /tmp/wallet && go run main.go {0} {1} {2} {3} {4}".format(uri, vmName, chainName, num_nodes, is_elastic)]
+            command = ["/bin/sh", "-c", "cd /tmp/wallet && go run main.go {0} {1} {2} {3} {4}".format(uri, vmId, chainName, num_nodes, is_elastic)]
         )
     )
 
-    subnetId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/subnetId.txt")
-    chainId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/chainId.txt")
-    vmId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/vmId.txt")
+    subnetId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/subnetId.txt")
+    chainId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/chainId.txt")
 
     assetId, transformationId, exportId, importId = None, None, None, None
     if is_elastic:
-        assetId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/assetId.txt")
-        transformationId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/transformationId.txt")
-        exportId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/exportId.txt")
-        importId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/importId.txt")
+        assetId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/assetId.txt")
+        transformationId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/transformationId.txt")
+        exportId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/exportId.txt")
+        importId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/importId.txt")
 
 
     validatorIds = []
     for index in range (0, num_nodes):
-        validatorIds.append(read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/node-{0}/validator_id.txt".format(index)))
+        validatorIds.append(utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/node-{0}/validator_id.txt".format(index)))
     
-    return subnetId, chainId, vmId, validatorIds, assetId, transformationId, exportId, importId
-
-
-# reads the given file in service without the new line
-# TODO put this in utils
-def read_file_from_service(plan, service_name, filename):
-    output = plan.exec(
-        service_name = service_name,
-        recipe = ExecRecipe(
-            command = ["/bin/sh", "-c", "cat {}".format(filename)]
-        )
-    )
-    return output["output"]
+    return subnetId, chainId, validatorIds, assetId, transformationId, exportId, importId

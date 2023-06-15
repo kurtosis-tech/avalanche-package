@@ -17,7 +17,9 @@ ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
 PUBLIC_IP = "127.0.0.1"
 
-def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memory):
+utils = import_module("github.com/kurtosis-tech/avalanche-package/src/utils.star")
+
+def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memory, vmId):
     bootstrap_ips = []
     bootstrap_ids = []
     nodes = []
@@ -80,11 +82,12 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
             launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
 
-        # TODO remove this hardcoding
+        # TODO make the vm passable
+        # TODO only run this if subnets are wanted
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["cp", ABS_PLUGIN_DIRPATH + DEFAULT_PLUGIN_NAME, ABS_PLUGIN_DIRPATH + "tGBrM7iZGgNZvqPiwD9oD716rVRR9PiB6BFuG3ot3SP54ie8K"]
+                command = ["cp", ABS_PLUGIN_DIRPATH + DEFAULT_PLUGIN_NAME, ABS_PLUGIN_DIRPATH + vmId]
             )
         )
 
@@ -98,7 +101,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
 
         bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
         bootstrap_id_file = NODE_ID_PATH.format(index)
-        bootstrap_id = read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
+        bootstrap_id = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, bootstrap_id_file)
         bootstrap_ids.append(bootstrap_id)
 
 
@@ -153,14 +156,3 @@ def wait_for_health(plan, node_name):
         target_value=True,
         timeout="5m",
     )
-
-
-# reads the given file in service without the new line
-def read_file_from_service(plan, service_name, filename):
-    output = plan.exec(
-        service_name = service_name,
-        recipe = ExecRecipe(
-            command = ["/bin/sh", "-c", "cat {}".format(filename)]
-        )
-    )
-    return output["output"]
