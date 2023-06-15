@@ -90,6 +90,6 @@ def create_subnet(plan, uri, num_nodes, is_elastic, vmId, chainName):
 
     validatorIds = []
     for index in range (0, num_nodes):
-        validatorIds.append(read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/node-{0}/validator_id.txt".format(index)))
+        validatorIds.append(utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/node-{0}/validator_id.txt".format(index)))
     
     return subnetId, chainId, validatorIds, assetId, transformationId, exportId, importId
