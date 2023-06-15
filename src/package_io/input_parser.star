@@ -21,11 +21,9 @@ def get_default_input_args():
         # in megabytes
         "min_memory": 0,
         "vm_name": "testNet",
-        "chain_name": "testChain",  
-        "network_id": "1337"
+        "chain_name": "testChain",
     }
 
-# TODO figure out why stakng is disabled
 def get_default_node_cfg():
     return {
         "network-id": "1337",

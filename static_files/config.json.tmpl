@@ -1,6 +1,6 @@
 {
   "network-id": "{{ .NetworkId }}",
-  "staking-enabled": false,
-  "health-check-frequency": "5s",
+  "staking-enabled": "{{ .StakingEnabled }}",
+  "health-check-frequency": "{{ .HealthCheckFrequency }}",
   "plugin-dir": "{{ .PluginDirPath }}"
 }

@@ -15,10 +15,11 @@ def run(plan, args):
     vmName = args_with_right_defaults["vm_name"]
     chainName = args_with_right_defaults["chain_name"]
     num_validators = args_with_right_defaults["num_validators"]
-    networkId = args_with_right_defaults["network_id"]
+    node_config = args_with_right_defaults["node_config"]
+    networkId = node_config["network-id"]
     if not ephemeral_ports:
         plan.print("Warning - Ephemeral ports have been disabled will be publishing first node rpc on 9650 and staking on 9651, this can break due to port clash!")
-    builder_service.init(plan, networkId)
+    builder_service.init(plan, node_config)
     genesis, vmId = builder_service.genesis(plan, networkId ,node_count, vmName)
     rpc_urls, public_rpc_urls, launch_commands = node_launcher.launch(plan, genesis, args_with_right_defaults["avalanchego_image"], node_count, ephemeral_ports, min_cpu, min_memory, vmId)
     first_private_rpc_url = rpc_urls[0]
