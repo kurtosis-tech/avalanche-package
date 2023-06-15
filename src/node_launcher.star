@@ -17,7 +17,7 @@ ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
 PUBLIC_IP = "127.0.0.1"
 
-def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memory):
+def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memory, vmId):
     bootstrap_ips = []
     bootstrap_ids = []
     nodes = []
@@ -80,11 +80,12 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
             launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
 
-        # TODO remove this hardcoding
+        # TODO make the vm passable
+        # TODO only run this if subnets are wanted
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
-                command = ["cp", ABS_PLUGIN_DIRPATH + DEFAULT_PLUGIN_NAME, ABS_PLUGIN_DIRPATH + "tGBrM7iZGgNZvqPiwD9oD716rVRR9PiB6BFuG3ot3SP54ie8K"]
+                command = ["cp", ABS_PLUGIN_DIRPATH + DEFAULT_PLUGIN_NAME, ABS_PLUGIN_DIRPATH + vmId]
             )
         )
 

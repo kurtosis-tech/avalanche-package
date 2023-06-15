@@ -19,7 +19,7 @@ def run(plan, args):
     # TODO make network_id 1337 passable and match the node config in node_launcher
     builder_service.init(plan, "1337")
     genesis, vmId = builder_service.genesis(plan, "1337" ,node_count, vmName)
-    rpc_urls, public_rpc_urls, launch_commands = node_launcher.launch(plan, genesis, args_with_right_defaults["avalanchego_image"], node_count, ephemeral_ports, min_cpu, min_memory)
+    rpc_urls, public_rpc_urls, launch_commands = node_launcher.launch(plan, genesis, args_with_right_defaults["avalanchego_image"], node_count, ephemeral_ports, min_cpu, min_memory, vmId)
     first_private_rpc_url = rpc_urls[0]
     if public_rpc_urls:
         rpc_urls = public_rpc_urls
