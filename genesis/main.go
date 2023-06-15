@@ -17,7 +17,7 @@ const (
 	stakingNodeKeyPath  = "/tmp/data/node-%d/staking/staker.key"
 	stakingNodeCertPath = "/tmp/data/node-%d/staking/staker.crt"
 	nodeIdPath          = "/tmp/data/node-%d/node_id.txt"
-	vmIdPath            = "/tmp/data/vm_id.txt"
+	vmIdPath            = "/tmp/data/vmId.txt"
 	genesisFile         = "/tmp/data/genesis.json"
 	vmNameArgIndex      = 3
 	numNodeArgIndex     = 2

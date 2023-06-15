@@ -41,12 +41,12 @@ def init(plan, network_id):
     )
 
 
-def genesis(plan, network_id, num_nodes):
+def genesis(plan, network_id, num_nodes, vmName):
     plan.exec(
         service_name=BUILDER_SERVICE_NAME,
         recipe=ExecRecipe(
             command=[
-                "/bin/sh", "-c", "cd /tmp/genesis && go run main.go {0} {1}".format(network_id, num_nodes)]
+                "/bin/sh", "-c", "cd /tmp/genesis && go run main.go {0} {1} {2}".format(network_id, num_nodes, vmName)]
         )
     )
 
@@ -63,15 +63,17 @@ def genesis(plan, network_id, num_nodes):
         src = "/tmp/data"
     )
 
-    return genesis_data
+    vmId = read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/data/vmId.txt")
+
+    return genesis_data, vmId
 
 
 # TODO make vmName and chainName passable
-def create_subnet(plan, uri, num_nodes, is_elastic, vmName, chainName):
+def create_subnet(plan, uri, num_nodes, is_elastic, vmId, chainName):
     plan.exec(
         service_name = BUILDER_SERVICE_NAME,
         recipe = ExecRecipe(
-            command = ["/bin/sh", "-c", "cd /tmp/wallet && go run main.go {0} {1} {2} {3} {4}".format(uri, vmName, chainName, num_nodes, is_elastic)]
+            command = ["/bin/sh", "-c", "cd /tmp/wallet && go run main.go {0} {1} {2} {3} {4}".format(uri, vmId, chainName, num_nodes, is_elastic)]
         )
     )
 
