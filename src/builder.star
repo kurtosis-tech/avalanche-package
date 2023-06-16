@@ -6,12 +6,14 @@ ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
 BUILDER_SERVICE_NAME = "builder"
 
-def init(plan, network_id):
+def init(plan, node_cfg):
 
     node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
     cfg_template_data = {
         "PluginDirPath": ABS_PLUGIN_DIRPATH,
-        "NetworkId": network_id,
+        "NetworkId": node_cfg["network-id"],
+        "StakingEnabled": node_cfg["staking-enabled"],
+        "HealthCheckFrequency": node_cfg["health-check-frequency"],
     }
     node_cfg = plan.render_templates(
         config= {
