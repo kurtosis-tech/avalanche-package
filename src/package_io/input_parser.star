@@ -4,6 +4,7 @@ def parse_input(input_args):
     result = get_default_input_args()
     for attr in input_args:
         result[attr] = input_args[attr]
+    result["num_validators"] = result.get("num_validators", result["node_count"])
     return result
 
 def get_default_input_args():
