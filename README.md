@@ -103,7 +103,7 @@ Then, call the this package's `run` function later in your package's Starlark sc
 this_package_output = this_package.run(plan, args)
 ```
 
-By using the `subnet_genesis_json` you can pass the url of a `genesis.json` in your own package to use a different genesis file for the subnet.
+By using the `subnet_genesis_json` argument you can pass the url of a `genesis.json` in your own package to use a different genesis file for the subnet.
 
 ## Kubernetes Configuration
 
