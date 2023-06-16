@@ -18,12 +18,13 @@ def run(plan, args):
     node_config = args_with_right_defaults["node_config"]
     custom_subnet_vm_path = args_with_right_defaults["custom_subnet_vm_path"]
     custom_subnet_vm_url = args_with_right_defaults["custom_subnet_vm_url"]
+    subnet_genesis_json = args_with_right_defaults["subnet_genesis_json"]
     if custom_subnet_vm_path and custom_subnet_vm_url:
         fail("both {0} and {1} were set. only one can be set at a time.", "custom_subnet_vm_path", "custom_subnet_vm_url")
     networkId = node_config["network-id"]
     if not ephemeral_ports:
         plan.print("Warning - Ephemeral ports have been disabled will be publishing first node rpc on 9650 and staking on 9651, this can break due to port clash!")
-    builder_service.init(plan, node_config)
+    builder_service.init(plan, node_config, subnet_genesis_json)
     genesis, vmId = builder_service.genesis(plan, networkId ,node_count, vmName)
     rpc_urls, public_rpc_urls, launch_commands = node_launcher.launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memory, vmId, dont_start_subnets, custom_subnet_vm_path, custom_subnet_vm_url)
     first_private_rpc_url = rpc_urls[0]

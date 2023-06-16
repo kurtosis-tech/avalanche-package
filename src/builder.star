@@ -30,7 +30,7 @@ def init(plan, node_cfg):
     wallet = plan.upload_files(
         "github.com/kurtosis-tech/avalanche-package/wallet")
 
-    subnet_genesis = plan.upload_files("github.com/kurtosis-tech/avalanche-package/static_files/genesis.json")
+    subnet_genesis = plan.upload_files(subnet_genesis_json)
 
     plan.add_service(
         name=BUILDER_SERVICE_NAME,
