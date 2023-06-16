@@ -18,7 +18,7 @@ def run(plan, args):
     node_config = args_with_right_defaults["node_config"]
     custom_subnet_vm_path = args_with_right_defaults["custom_subnet_vm_path"]
     custom_subnet_vm_url = args_with_right_defaults["custom_subnet_vm_url"]
-    if custom_subnet_vm_path and custom_subnet_vm_ur:
+    if custom_subnet_vm_path and custom_subnet_vm_url:
         fail("both {0} and {1} were set. only one can be set at a time.", "custom_subnet_vm_path", "custom_subnet_vm_url")
     networkId = node_config["network-id"]
     if not ephemeral_ports:
