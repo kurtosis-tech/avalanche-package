@@ -53,7 +53,7 @@ will spin up 3 non-stacking Avalanche nodes locally.
 | ------------------- | -----------------------------------------------------------------------------------------------------------------------|
 | dont_start_subnets  | If set to true; Kurtosis won't start subnets (default: False)                                                          |
 | is_elastic          | If set to true; Kurtosis will start elastic subnets (default: False)                                                   |
-| ephemeral_ports     | Docker only. If used Kurtosis will expose ports 9650, 9652 and so on for rpc ports and 9651, 9653 and so on for staking (default: true)|
+| ephemeral_ports     | Docker only. If set to false Kurtosis will expose ports 9650, 9652 and so on for rpc ports and 9651, 9653 and so on for staking (default: true)|
 | avalanchego_image   | The image to start the node with (default: avaplatform/avalanchego:v1.10.1-Subnet-EVM-master)|
 | node_count  | Number of nodes to start the cluster with (default: 5) |
 | node_config.network-id  | The ID of the primary network to spin up |
@@ -82,9 +82,9 @@ By updating the `genesis.json` you can change the initial allocations, chain id,
 
 Various different [precompiles](https://docs.avax.network/subnets/customize-a-subnet#precompiles) can also be configured by bringing your own genesis.json
 
-## Non Ephemeral Ports
+## Fixed Ports
 
-Use the `{"ephemeral_ports": false}` argument to get non ephemeral ports, rpc ports will be on 9650, 9652, 9654 and so on while non staking ports will be on 9651, 9653, 9655 and so on.
+Use the `{"ephemeral_ports": false}` argument to get fixed ports, rpc ports will be on 9650, 9652, 9654 and so on while non staking ports will be on 9651, 9653, 9655 and so on.
 
 Use this package in your package
 --------------------------------
