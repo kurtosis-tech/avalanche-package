@@ -6,7 +6,7 @@ ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
 BUILDER_SERVICE_NAME = "builder"
 
-def init(plan, node_cfg):
+def init(plan, node_cfg, subnet_genesis_json):
 
     node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
     cfg_template_data = {
