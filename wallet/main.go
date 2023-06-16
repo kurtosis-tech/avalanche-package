@@ -2,7 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/ava-labs/avalanchego/genesis"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/utils/constants"
@@ -19,9 +25,6 @@ import (
 	"github.com/ava-labs/avalanchego/wallet/chain/x"
 	"github.com/ava-labs/avalanchego/wallet/subnet/primary"
 	"github.com/ava-labs/avalanchego/wallet/subnet/primary/common"
-	"os"
-	"strconv"
-	"time"
 )
 
 const (
@@ -46,12 +49,17 @@ const (
 	chainIdOutput      = "/tmp/subnet/chainId.txt"
 	subnetIdOutput     = "/tmp/subnet/subnetId.txt"
 	validatorIdsOutput = "/tmp/subnet/node-%d/validator_id.txt"
+	allocationsOutput  = "/tmp/subnet/allocations.txt"
 
 	// permissionless
 	assetIdOutput          = "/tmp/subnet/assetId.txt"
 	exportIdOutput         = "/tmp/subnet/exportId.txt"
 	importIdOutput         = "/tmp/subnet/importId.txt"
 	transformationIdOutput = "/tmp/subnet/transformationId.txt"
+
+	// delimiters
+	allocationDelimiter = ","
+	addrAllocDelimiter  = "="
 )
 
 // https://github.com/ava-labs/avalanche-cli/blob/917ef2e440880d68452080b4051c3031be76b8af/pkg/elasticsubnet/config_prompt.go#L18-L38
@@ -79,6 +87,14 @@ type wallet struct {
 	pBuilder p.Builder
 	pSigner  p.Signer
 	xWallet  x.Wallet
+}
+
+type Genesis struct {
+	Alloc map[string]Balance `json:alloc`
+}
+
+type Balance struct {
+	Balance string `json:balance`
 }
 
 var (
@@ -125,7 +141,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("an error occurred converting '%v' vm id string to ids.ID: %v", vmIDStr, err)
 	}
-	chainId, err := createBlockChain(w, subnetId, vmID, chainName)
+	chainId, allocations, err := createBlockChain(w, subnetId, vmID, chainName)
 	if err != nil {
 		fmt.Printf("an erorr occurred while creating chain: %v\n", err)
 		os.Exit(nonZeroExitCode)
@@ -165,14 +181,14 @@ func main() {
 		fmt.Printf("added permissionless validators with ids '%v'\n", validatorIds)
 	}
 
-	err = writeOutputs(subnetId, chainId, validatorIds, assetId, exportId, importId, transformationId, isElastic)
+	err = writeOutputs(subnetId, chainId, validatorIds, allocations, assetId, exportId, importId, transformationId, isElastic)
 	if err != nil {
 		fmt.Printf("an error occurred while writing outputs: %v\n", err)
 		os.Exit(nonZeroExitCode)
 	}
 }
 
-func writeOutputs(subnetId ids.ID, chainId ids.ID, validatorIds []ids.ID, assetId, exportId, importId, transformationId ids.ID, isElastic bool) error {
+func writeOutputs(subnetId ids.ID, chainId ids.ID, validatorIds []ids.ID, allocations map[string]string, assetId, exportId, importId, transformationId ids.ID, isElastic bool) error {
 	for index, validatorId := range validatorIds {
 		if err := os.MkdirAll(fmt.Sprintf(parentPath, index), 0700); err != nil {
 			return err
@@ -188,7 +204,13 @@ func writeOutputs(subnetId ids.ID, chainId ids.ID, validatorIds []ids.ID, assetI
 	if err := os.WriteFile(subnetIdOutput, []byte(subnetId.String()), perms.ReadOnly); err != nil {
 		return err
 	}
-
+	var allocationList []string
+	for addr, balance := range allocations {
+		allocationList = append(allocationList, addr+addrAllocDelimiter+balance)
+	}
+	if err := os.WriteFile(allocationsOutput, []byte(strings.Join(allocationList, allocationDelimiter)), perms.ReadOnly); err != nil {
+		return err
+	}
 	if isElastic {
 		if err := os.WriteFile(assetIdOutput, []byte(assetId.String()), perms.ReadOnly); err != nil {
 			return err
@@ -370,11 +392,19 @@ func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.I
 	return validatorIDs, nil
 }
 
-func createBlockChain(w *wallet, subnetId ids.ID, vmId ids.ID, chainName string) (ids.ID, error) {
+func createBlockChain(w *wallet, subnetId ids.ID, vmId ids.ID, chainName string) (ids.ID, map[string]string, error) {
 	ctx := context.Background()
 	genesisData, err := os.ReadFile("/tmp/wallet/genesis.json")
 	if err != nil {
-		return ids.Empty, err
+		return ids.Empty, nil, err
+	}
+	var genesis Genesis
+	if err := json.Unmarshal(genesisData, &genesis); err != nil {
+		return ids.Empty, nil, fmt.Errorf("an error occured while unmarshalling genesis json: %v")
+	}
+	allocations := map[string]string{}
+	for addr, allocation := range genesis.Alloc {
+		allocations[addr] = allocation.Balance
 	}
 	var nilFxIds []ids.ID
 	chainId, err := w.pWallet.IssueCreateChainTx(
@@ -387,9 +417,9 @@ func createBlockChain(w *wallet, subnetId ids.ID, vmId ids.ID, chainName string)
 		defaultPoll,
 	)
 	if err != nil {
-		return ids.Empty, nil
+		return ids.Empty, nil, nil
 	}
-	return chainId, nil
+	return chainId, allocations, nil
 }
 
 func createSubnet(w *wallet) (ids.ID, error) {
