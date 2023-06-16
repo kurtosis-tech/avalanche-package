@@ -10,16 +10,13 @@ NODE_NAME_PREFIX = "node-"
 NODE_ID_PATH = "/tmp/data/node-{0}/node_id.txt"
 BUILDER_SERVICE_NAME = "builder"
 
-# TODO make this automated
-DEFAULT_PLUGIN_NAME = "srEXiWaHuhNyGwPUi444Tu47ZEDwxTWrbQiuD7FmgSAQ6X7Dy"
-
 ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
 PUBLIC_IP = "127.0.0.1"
 
 utils = import_module("github.com/kurtosis-tech/avalanche-package/src/utils.star")
 
-def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memory, vmId):
+def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memory, vmId, dont_start_subnets):
     bootstrap_ips = []
     bootstrap_ids = []
     nodes = []
@@ -81,23 +78,8 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
             launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
             launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
-
-        # TODO make the vm passable
-        # TODO only run this if subnets are wanted
-        plan.exec(
-            service_name = node_name,
-            recipe = ExecRecipe(
-                command = ["cp", ABS_PLUGIN_DIRPATH + DEFAULT_PLUGIN_NAME, ABS_PLUGIN_DIRPATH + vmId]
-            )
-        )
-
-        plan.exec(
-            service_name = node_name,
-            recipe = ExecRecipe(
-                command = ["/bin/sh", "-c", " ".join(launch_node_cmd) + " >/dev/null 2>&1 &"],
-            )
-        )
-
+        if not dont_start_subnets:
+            copy_over_default_plugin(plan, node_name, vmId)
 
         bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
         bootstrap_id_file = NODE_ID_PATH.format(index)
@@ -155,4 +137,20 @@ def wait_for_health(plan, node_name):
         assertion="==",
         target_value=True,
         timeout="5m",
+    )
+
+
+def copy_over_default_plugin(plan, node_name, vmId):
+    filename_response = plan.exec(
+        service_name = node_name,
+        recipe = ExecRecipe(
+            command = ["ls", ABS_PLUGIN_DIRPATH]
+        )
+    )
+    default_plugin_name = filename_response["output"]
+    plan.exec(
+        service_name = node_name,
+        recipe = ExecRecipe(
+            command = ["cp", ABS_PLUGIN_DIRPATH + default_plugin_name, ABS_PLUGIN_DIRPATH + vmId]
+        )
     )
