@@ -42,7 +42,6 @@ def run(plan, args):
         output["validator ids"] = validatorIds
         output["chain-rpc-url"] = "{0}/ext/bc/{1}/rpc".format(rpc_urls[0], chainId)
         output["allocations"] = allocations
-        # TODO remove this as this is hardcoded
         output["chain genesis id"] = genesisChainId
         if is_elastic:
             output["elastic config"] = {}
