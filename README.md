@@ -101,6 +101,31 @@ Then, call the this package's `run` function later in your package's Starlark sc
 this_package_output = this_package.run(plan, args)
 ```
 
+## Kubernetes Configuration
+
+To run this on Kubernetes you need to configure your CLI to work with Kubernetes using [this guide](https://docs.kurtosis.com/k8s/)
+
+Further the chain rpc url that gets printed at the end won't be directly accessible as the IP address printed there is internal to `K8S`; you will have to replace
+the URL slightly like given the following input - 
+
+`http://172.16.5.3:9650/ext/bc/2hzMp2mNsBpCHRMkyaM6gR1tgeV4sTGuDx8WD2uG5LwTEPfpZe/rpc`
+
+Keep everything but replace the ip address with `127.0.0.1` and the port `9650` with any of the rpc ports listed in `kurtosis enclave inspect`. As an example
+
+```
+========================================== User Services ==========================================
+UUID           Name      Ports                                  Status
+426da692eea4   builder   <none>                                 RUNNING
+09d0bbc70f9b   node-0    rpc: 9650/tcp -> 127.0.0.1:61837       RUNNING
+                         staking: 9651/tcp -> 127.0.0.1:61838
+cd172a584033   node-1    rpc: 9650/tcp -> 127.0.0.1:61839       RUNNING
+                         staking: 9651/tcp -> 127.0.0.1:61840
+0d6a4daf23ee   node-2    rpc: 9650/tcp -> 127.0.0.1:61834       RUNNING
+                         staking: 9651/tcp -> 127.0.0.1:61835
+```
+
+The final url would look like `http://127.0.0.1:61834/ext/bc/2hzMp2mNsBpCHRMkyaM6gR1tgeV4sTGuDx8WD2uG5LwTEPfpZe/rpc`
+
 Develop on this package
 -----------------------
 1. [Install Kurtosis][install-kurtosis]
