@@ -36,7 +36,8 @@ You can configure this package using the following JSON structure (keys and defa
     "vm_name": "testNet",
     "chain_name": "testChain",
     "custom_subnet_vm_path": "",
-    "custom_subnet_vm_url": ""
+    "custom_subnet_vm_url": "",
+    "subnet_genesis_json": "github.com/kurtosis-tech/avalanche-package/static_files/genesis.json"
 }
 ```
 
@@ -65,6 +66,7 @@ will spin up 3 non-stacking Avalanche nodes locally.
 | chain name  | The alias to assign to the chain (default: testChain)         |
 | custom_subnet_vm_path  | If supplied Kurtosis will use this as the VM to use for the subnet it spins up|
 | custom_subnet_vm_url  | If supplied Kurtosis will download and use this as the VM to use for the subnet it spins up|
+| subnet_genesis_json  | If you are using this package from a different package you can override the default genesis for the subnet using this argument|
 
 
 ## Custom Subnet Genesis
@@ -100,6 +102,8 @@ Then, call the this package's `run` function later in your package's Starlark sc
 ```python
 this_package_output = this_package.run(plan, args)
 ```
+
+By using the `subnet_genesis_json` argument you can pass the url of a `genesis.json` in your own package to use a different genesis file for the subnet.
 
 ## Kubernetes Configuration
 

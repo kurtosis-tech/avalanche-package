@@ -23,7 +23,8 @@ def get_default_input_args():
         "vm_name": "testNet",
         "chain_name": "testChain",
         "custom_subnet_vm_path": "",
-        "custom_subnet_vm_url": ""
+        "custom_subnet_vm_url": "",
+        "subnet_genesis_json": "github.com/kurtosis-tech/avalanche-package/static_files/genesis.json"
     }
 
 def get_default_node_cfg():

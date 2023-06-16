@@ -6,7 +6,7 @@ ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
 BUILDER_SERVICE_NAME = "builder"
 
-def init(plan, node_cfg):
+def init(plan, node_cfg, subnet_genesis_json):
 
     node_cfg_template = read_file(static_files.NODE_CFG_JSON_FILEPATH)
     cfg_template_data = {
@@ -30,7 +30,7 @@ def init(plan, node_cfg):
     wallet = plan.upload_files(
         "github.com/kurtosis-tech/avalanche-package/wallet")
 
-    subnet_genesis = plan.upload_files("github.com/kurtosis-tech/avalanche-package/static_files/genesis.json")
+    subnet_genesis = plan.upload_files(subnet_genesis_json)
 
     plan.add_service(
         name=BUILDER_SERVICE_NAME,
