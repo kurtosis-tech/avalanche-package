@@ -4,6 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/ava-labs/avalanchego/genesis"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/utils/constants"
@@ -20,10 +25,6 @@ import (
 	"github.com/ava-labs/avalanchego/wallet/chain/x"
 	"github.com/ava-labs/avalanchego/wallet/subnet/primary"
 	"github.com/ava-labs/avalanchego/wallet/subnet/primary/common"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 )
 
 const (
@@ -57,8 +58,8 @@ const (
 	transformationIdOutput = "/tmp/subnet/transformationId.txt"
 
 	// delimiters
-	newLineDelimiter   = "\n"
-	addrAllocDelimiter = "="
+	allocationDelimiter = ","
+	addrAllocDelimiter  = "="
 )
 
 // https://github.com/ava-labs/avalanche-cli/blob/917ef2e440880d68452080b4051c3031be76b8af/pkg/elasticsubnet/config_prompt.go#L18-L38
@@ -207,7 +208,7 @@ func writeOutputs(subnetId ids.ID, chainId ids.ID, validatorIds []ids.ID, alloca
 	for addr, balance := range allocations {
 		allocationList = append(allocationList, addr+addrAllocDelimiter+balance)
 	}
-	if err := os.WriteFile(allocationsOutput, []byte(strings.Join(allocationList, newLineDelimiter)), perms.ReadOnly); err != nil {
+	if err := os.WriteFile(allocationsOutput, []byte(strings.Join(allocationList, allocationDelimiter)), perms.ReadOnly); err != nil {
 		return err
 	}
 	if isElastic {
