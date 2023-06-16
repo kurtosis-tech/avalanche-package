@@ -28,7 +28,9 @@ def init(plan, node_cfg):
         "github.com/kurtosis-tech/avalanche-package/genesis")
 
     wallet = plan.upload_files(
-        "github.com/kurtosis-tech/avalanche-package/wallet")        
+        "github.com/kurtosis-tech/avalanche-package/wallet")
+
+    subnet_genesis = plan.upload_files("github.com/kurtosis-tech/avalanche-package/static_files/genesis.json")
 
     plan.add_service(
         name=BUILDER_SERVICE_NAME,
@@ -38,7 +40,8 @@ def init(plan, node_cfg):
             files={
                 "/tmp/genesis": genesis_generator,
                 "/tmp/config": node_cfg,
-                "/tmp/wallet": wallet
+                "/tmp/wallet": wallet,
+                "/tmp/subnet-genesis/": subnet_genesis
             }
         )
     )
@@ -82,6 +85,8 @@ def create_subnet(plan, uri, num_nodes, is_elastic, vmId, chainName):
     subnetId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/subnetId.txt")
     chainId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/chainId.txt")
     allocations = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/allocations.txt")
+    genesisChainId = utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/genesisChainId.txt")
+    
 
     assetId, transformationId, exportId, importId = None, None, None, None
     if is_elastic:
@@ -95,4 +100,4 @@ def create_subnet(plan, uri, num_nodes, is_elastic, vmId, chainName):
     for index in range (0, num_nodes):
         validatorIds.append(utils.read_file_from_service(plan, BUILDER_SERVICE_NAME, "/tmp/subnet/node-{0}/validator_id.txt".format(index)))
     
-    return subnetId, chainId, validatorIds, allocations, assetId, transformationId, exportId, importId
+    return subnetId, chainId, validatorIds, allocations, genesisChainId, assetId, transformationId, exportId, importId
