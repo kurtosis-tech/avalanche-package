@@ -10,16 +10,13 @@ NODE_NAME_PREFIX = "node-"
 NODE_ID_PATH = "/tmp/data/node-{0}/node_id.txt"
 BUILDER_SERVICE_NAME = "builder"
 
-# TODO make this automated
-DEFAULT_PLUGIN_NAME = "srEXiWaHuhNyGwPUi444Tu47ZEDwxTWrbQiuD7FmgSAQ6X7Dy"
-
 ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
 PUBLIC_IP = "127.0.0.1"
 
 utils = import_module("github.com/kurtosis-tech/avalanche-package/src/utils.star")
 
-def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memory, vmId):
+def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memory, vmId, dont_start_subnets, custom_subnet_vm_path, custom_subnet_vm_url):
     bootstrap_ips = []
     bootstrap_ids = []
     nodes = []
@@ -81,23 +78,20 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
             launch_node_cmd.append("--bootstrap-ips={0}".format(",".join(bootstrap_ips)))
             launch_node_cmd.append("--bootstrap-ids={0}".format(",".join(bootstrap_ids)))
 
-
-        # TODO make the vm passable
-        # TODO only run this if subnets are wanted
-        plan.exec(
-            service_name = node_name,
-            recipe = ExecRecipe(
-                command = ["cp", ABS_PLUGIN_DIRPATH + DEFAULT_PLUGIN_NAME, ABS_PLUGIN_DIRPATH + vmId]
-            )
-        )
+        if not dont_start_subnets:
+            if custom_subnet_vm_path:
+                cp(plan, node_name, custom_subnet_vm_path, ABS_PLUGIN_DIRPATH + vmId)
+            elif custom_subnet_vm_url:
+                download_to_path(plan, custom_subnet_vm_url, ABS_PLUGIN_DIRPATH + vmId)
+            else:
+                copy_over_default_plugin(plan, node_name, vmId)
 
         plan.exec(
             service_name = node_name,
             recipe = ExecRecipe(
                 command = ["/bin/sh", "-c", " ".join(launch_node_cmd) + " >/dev/null 2>&1 &"],
             )
-        )
-
+        )            
 
         bootstrap_ips.append("{0}:{1}".format(node.ip_address, STAKING_PORT_NUM))
         bootstrap_id_file = NODE_ID_PATH.format(index)
@@ -155,4 +149,40 @@ def wait_for_health(plan, node_name):
         assertion="==",
         target_value=True,
         timeout="5m",
+    )
+
+
+def copy_over_default_plugin(plan, node_name, vmId):
+    filename_response = plan.exec(
+        service_name = node_name,
+        recipe = ExecRecipe(
+            command = ["/bin/sh", "-c", "ls {0} | tr -d '\n'".format(ABS_PLUGIN_DIRPATH)]
+        )
+    )
+    default_plugin_name = filename_response["output"]
+    cp(plan, node_name, ABS_PLUGIN_DIRPATH + default_plugin_name, ABS_PLUGIN_DIRPATH + vmId)
+
+
+def cp(plan, node_name, src, dest):
+    plan.exec(
+        service_name = node_name,
+        recipe = ExecRecipe(
+            command = ["cp", src, dest]
+        )
+    )
+
+
+def download_to_path(plan, node_name, url, dest):
+    plan.exec(
+        service_name = node_name,
+        recipe = ExecRecipe(
+            command = ["/bin/sh", "-c", "apt update --allow-insecure-repositories && apt-get install curl -y --allow-unauthenticated"]
+        )
+    )
+
+    plan.exec(
+        service_name = node_name,
+        recipe = ExecRecipe(
+            command = ["/bin/sh", "-c", "curl {0} -o {1}".format(url, dest)]
+        )
     )
