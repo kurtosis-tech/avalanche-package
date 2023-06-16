@@ -96,7 +96,7 @@ type Genesis struct {
 }
 
 type Config struct {
-	ChainId string `json:chainId`
+	ChainId int `json:chainId`
 }
 
 type Balance struct {
@@ -415,7 +415,7 @@ func createBlockChain(w *wallet, subnetId ids.ID, vmId ids.ID, chainName string)
 	for addr, allocation := range genesis.Alloc {
 		allocations[addr] = allocation.Balance
 	}
-	genesisChainId := genesis.Config.ChainId
+	genesisChainId := fmt.Sprintf("%d", genesis.Config.ChainId)
 	var nilFxIds []ids.ID
 	chainId, err := w.pWallet.IssueCreateChainTx(
 		subnetId,
