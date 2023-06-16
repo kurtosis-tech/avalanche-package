@@ -29,7 +29,7 @@ def run(plan, args):
     if not dont_start_subnets:
         subnetId, chainId, validatorIds, assetId, transformationId, exportId, importId = builder_service.create_subnet(plan, first_private_rpc_url, num_validators, is_elastic, vmId, chainName)
         plan.print("subnet id: {0}\nchain id: {1}\nvm id: {2}\nvalidator ids: {3}\n".format(subnetId, chainId, vmId, ", ".join(validatorIds)))
-        node_launcher.restart_nodes(plan, num_validators, launch_commands, subnetId, vmId)
+        node_launcher.restart_nodes(plan, node_count, launch_commands, subnetId, vmId)
         output["rpc-urls"] = rpc_urls
         output["subnet id"] = subnetId
         output["chain id"] = chainId
