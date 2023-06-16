@@ -22,6 +22,8 @@ def get_default_input_args():
         "min_memory": 0,
         "vm_name": "testNet",
         "chain_name": "testChain",
+        "custom_subnet_vm_path": "",
+        "custom_subnet_vm_url": ""
     }
 
 def get_default_node_cfg():
