@@ -37,6 +37,17 @@ will spin up 3 non-stacking Avalanche nodes locally.
 
 </details>
 
+### Custom Subnet Genesis
+
+By default Kurtosis runs the subnet chain with the `genesis.json` at `static_files/genesis.json`. To bring your own `genesis.json` you should - 
+
+1. Clone the repository
+2. Replace that file with the right values
+3. Run the package with `kurtosis run .` to ensure that you are running local code
+4. Optionally you can publish this to a fork and use that with `kurtosis run` passing a remote GitHub path
+
+By updating the `genesis.json` you can change the initial allocations, chain id, gas configuration and a lot of other config
+
 
 ### Non Ephemeral Ports
 
