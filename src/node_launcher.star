@@ -144,7 +144,7 @@ def copy_over_default_plugin(plan, node_name, vmId):
     filename_response = plan.exec(
         service_name = node_name,
         recipe = ExecRecipe(
-            command = ["ls", ABS_PLUGIN_DIRPATH]
+            command = ["/bin/sh", "-c", "ls {0} | tr -d '\n'".format(ABS_PLUGIN_DIRPATH)]
         )
     )
     default_plugin_name = filename_response["output"]
