@@ -14,17 +14,29 @@ To run it locally, [install Kurtosis][install-kurtosis] and run the same.
 
 To blow away the created [enclave][enclaves-reference], run `kurtosis clean -a`.
 
-#### Configuration
-
-<details>
-    <summary>Click to see configuration</summary>
+## Configuration
 
 <!-- You can parameterize your package as you prefer; see https://docs.kurtosis.com/next/concepts-reference/args for more -->
-You can configure this package using the following JSON structure:
+You can configure this package using the following JSON structure (keys and default values):
 
 ```javascript
 {
-    "name": "John Snow"
+    "dont_start_subnets": False,
+    "is_elastic": False,
+    "ephemeral_ports": True,
+    "avalanchego_image": "avaplatform/avalanchego:v1.10.1-Subnet-EVM-master",
+    "node_config": {
+        "network-id": "1337",
+        "staking-enabled": False,
+        "health-check-frequency": "5s",        
+    },
+    "node_count": 5,
+    "min_cpu": 0,
+    "min_memory": 0,
+    "vm_name": "testNet",
+    "chain_name": "testChain",
+    "custom_subnet_vm_path": "",
+    "custom_subnet_vm_url": ""
 }
 ```
 
@@ -35,9 +47,27 @@ kurtosis run github.com/kurtosis-tech/avalanche-package '{"node_count":3}'
 ```
 will spin up 3 non-stacking Avalanche nodes locally.
 
-</details>
 
-### Custom Subnet Genesis
+| Key                 | Meaning                                                                                                                |
+| ------------------- | -----------------------------------------------------------------------------------------------------------------------|
+| dont_start_subnets  | If set to true; Kurtosis won't start subnets (default: False)                                                          |
+| is_elastic          | If set to true; Kurtosis will start elastic subnets (default: False)                                                   |
+| ephemeral_ports     | Docker only. If used Kurtosis will expose ports 9650, 9652 and so on for rpc ports and 9651, 9653 and so on for staking (default: true)|
+| avalanchego_image   | The image to start the node with (default: avaplatform/avalanchego:v1.10.1-Subnet-EVM-master)|
+| node_count  | Number of nodes to start the cluster with (default: 5) |
+| node_config.network-id  | The ID of the primary network to spin up |
+| node_config.staking-enabled  | Whether staking is enabled on the node |
+| node_config.health-check-frequency  | Interval at which to check health |
+| num_validators  | Number of validator nodes to start the cluster with. (default: node_count)         |
+| min_cpu  | K8S only. Minimum cpu in millicores per avalanche node that Kurtosis spins up (default: 0)         |
+| min_memory  | K8S only. Minimum memory in megabytes per avalanche node that Kurtosis spins up (default: 0)         |
+| vm_name  | The name to assign to the VM and dervie vm id from (default: testNet)         |
+| chain name  | The alias to assign to the chain (default: testChain)         |
+| custom_subnet_vm_path  | If supplied Kurtosis will use this as the VM to use for the subnet it spins up|
+| custom_subnet_vm_url  | If supplied Kurtosis will download and use this as the VM to use for the subnet it spins up|
+
+
+## Custom Subnet Genesis
 
 By default Kurtosis runs the subnet chain with the `genesis.json` at `static_files/genesis.json`. To bring your own `genesis.json` you should - 
 
@@ -50,7 +80,7 @@ By updating the `genesis.json` you can change the initial allocations, chain id,
 
 Various different [precompiles](https://docs.avax.network/subnets/customize-a-subnet#precompiles) can also be configured by bringing your own genesis.json
 
-### Non Ephemeral Ports
+## Non Ephemeral Ports
 
 Use the `{"ephemeral_ports": false}` argument to get non ephemeral ports, rpc ports will be on 9650, 9652, 9654 and so on while non staking ports will be on 9651, 9653, 9655 and so on.
 
