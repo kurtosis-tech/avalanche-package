@@ -48,6 +48,7 @@ By default Kurtosis runs the subnet chain with the `genesis.json` at `static_fil
 
 By updating the `genesis.json` you can change the initial allocations, chain id, gas configuration and a lot of other config
 
+Various different [precompiles](https://docs.avax.network/subnets/customize-a-subnet#precompiles) can also be configured by bringing your own genesis.json
 
 ### Non Ephemeral Ports
 
