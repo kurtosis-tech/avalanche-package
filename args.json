@@ -9,6 +9,7 @@
         "health-check-frequency": "5s"
     },
     "node_count": 5,
+    "num_validators": 5,
     "min_cpu": 0,
     "min_memory": 0,
     "vm_name": "testNet",
