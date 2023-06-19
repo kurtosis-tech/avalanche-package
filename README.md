@@ -21,14 +21,14 @@ You can configure this package using the following JSON structure (keys and defa
 
 ```javascript
 {
-    "dont_start_subnets": False,
-    "is_elastic": False,
-    "ephemeral_ports": True,
+    "dont_start_subnets": false,
+    "is_elastic": false,
+    "ephemeral_ports": true,
     "avalanchego_image": "avaplatform/avalanchego:v1.10.1-Subnet-EVM-master",
     "node_config": {
         "network-id": "1337",
-        "staking-enabled": False,
-        "health-check-frequency": "5s",        
+        "staking-enabled": false,
+        "health-check-frequency": "5s"
     },
     "node_count": 5,
     "min_cpu": 0,
@@ -68,6 +68,7 @@ will spin up 3 non-stacking Avalanche nodes locally.
 | custom_subnet_vm_url  | If supplied Kurtosis will download and use this as the VM to use for the subnet it spins up|
 | subnet_genesis_json  | If you are using this package from a different package you can override the default genesis for the subnet using this argument|
 
+**NOTE**: Passing arguments as JSON string to the CLI might be to cumbersome. You can use the following syntax too `kurtosis run . $(cat args.json)`. There's an `args.json` at the root of the project that you can use. It has the defaults set so feel free to tweak it.
 
 ## Custom Subnet Genesis
 
