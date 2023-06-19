@@ -19,6 +19,7 @@ def run(plan, args):
     custom_subnet_vm_path = args_with_right_defaults["custom_subnet_vm_path"]
     custom_subnet_vm_url = args_with_right_defaults["custom_subnet_vm_url"]
     subnet_genesis_json = args_with_right_defaults["subnet_genesis_json"]
+    plan.print("Using arguments:\n{0}".format(json.indent(json.encode(args_with_right_defaults))))
     if custom_subnet_vm_path and custom_subnet_vm_url:
         fail("both {0} and {1} were set. only one can be set at a time.", "custom_subnet_vm_path", "custom_subnet_vm_url")
     networkId = node_config["network-id"]
