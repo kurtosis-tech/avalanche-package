@@ -145,7 +145,7 @@ Example:
 export_default {
   networks: {
     local: {
-      url: 'http://127.0.0.1:YOUR_PORT/ext/bc/C/rpc',
+      url: 'http://127.0.0.1:<YOUR_PORT>/ext/bc/C/rpc',
       gasPrice: 225000000000,
       chainId: 43112,
       accounts: [
