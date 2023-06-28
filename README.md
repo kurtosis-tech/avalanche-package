@@ -68,7 +68,7 @@ will spin up 3 non-stacking Avalanche nodes locally.
 | custom_subnet_vm_url  | If supplied Kurtosis will download and use this as the VM to use for the subnet it spins up|
 | subnet_genesis_json  | If you are using this package from a different package you can override the default genesis for the subnet using this argument|
 
-**NOTE**: Passing arguments as JSON string to the CLI might be to cumbersome. You can use the following syntax too `kurtosis run . $(cat args.json)`. There's an `args.json` at the root of the project that you can use. It has the defaults set so feel free to tweak it.
+**NOTE**: Passing arguments as JSON string to the CLI might be to cumbersome. You can use the following syntax too `kurtosis run . "$(cat args.json)"`. There's an `args.json` at the root of the project that you can use. It has the defaults set so feel free to tweak it.
 
 ## Custom Subnet Genesis
 
