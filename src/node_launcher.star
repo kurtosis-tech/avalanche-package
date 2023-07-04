@@ -39,6 +39,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
             "--http-host=0.0.0.0",
             "--staking-port=" + str(STAKING_PORT_NUM),
             "--http-port="+ str(RPC_PORT_NUM),
+            "--log-dir=/tmp/"
         ]
 
         public_ports = {}
@@ -52,7 +53,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
                 "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait = None),
                 "staking": PortSpec(number = STAKING_PORT_NUM, transport_protocol = "TCP", wait = None)
             },
-            entrypoint = ["tail", "-f", "/dev/null"],
+            entrypoint = ["/bin/sh", "-c", "touch /tmp/main.log && tail -f /tmp/main.log"],
             files = {
                 "/tmp/": genesis,
             },
