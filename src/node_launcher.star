@@ -53,7 +53,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
                 "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait = None),
                 "staking": PortSpec(number = STAKING_PORT_NUM, transport_protocol = "TCP", wait = None)
             },
-            entrypoint = ["/bin/sh", "-c", "touch /tmp/main.log && tail -f /tmp/main.log"],
+            entrypoint = ["/bin/sh", "-c", "touch /tmp/main.log && cd /tmp && tail -F *.log"],
             files = {
                 "/tmp/": genesis,
             },
