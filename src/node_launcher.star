@@ -48,7 +48,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
             public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP", wait=None)
 
         log_files = ["main.log", "C.log", "X.log", "P.log", "vm-factory.log"]
-        log_files_cmds = ["touch {0}".format(log_file) for log_file in log_files]
+        log_files_cmds = ["touch /tmp/{0}".format(log_file) for log_file in log_files]
         log_file_cmd = " && ".join(log_files_cmds)
 
         node_service_config = ServiceConfig(
