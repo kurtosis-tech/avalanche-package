@@ -39,12 +39,17 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
             "--http-host=0.0.0.0",
             "--staking-port=" + str(STAKING_PORT_NUM),
             "--http-port="+ str(RPC_PORT_NUM),
+            "--log-dir=/tmp/"
         ]
 
         public_ports = {}
         if not ephemeral_ports:
             public_ports["rpc"] = PortSpec(number = RPC_PORT_NUM+ index*2 , transport_protocol = "TCP", wait=None)
-            public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP", wait=None)        
+            public_ports["staking"] = PortSpec(number = STAKING_PORT_NUM + index*2 , transport_protocol = "TCP", wait=None)
+
+        log_files = ["main.log", "C.log", "X.log", "P.log", "vm-factory.log"]
+        log_files_cmds = ["touch /tmp/{0}".format(log_file) for log_file in log_files]
+        log_file_cmd = " && ".join(log_files_cmds)
 
         node_service_config = ServiceConfig(
             image = image,
@@ -52,7 +57,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
                 "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait = None),
                 "staking": PortSpec(number = STAKING_PORT_NUM, transport_protocol = "TCP", wait = None)
             },
-            entrypoint = ["tail", "-f", "/dev/null"],
+            entrypoint = ["/bin/sh", "-c", log_file_cmd + " && cd /tmp && tail -F *.log"],
             files = {
                 "/tmp/": genesis,
             },
