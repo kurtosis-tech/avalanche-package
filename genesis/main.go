@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 )
 
 const (
@@ -99,6 +100,8 @@ func main() {
 		basicDelegationFee = basicDelegationFee * 2
 		initialStakers = append(initialStakers, staker)
 	}
+
+	unparsedConfig.StartTime = uint64(time.Now().Unix())
 
 	unparsedConfig.InitialStakers = initialStakers
 	genesisJson, err := json.Marshal(unparsedConfig)
