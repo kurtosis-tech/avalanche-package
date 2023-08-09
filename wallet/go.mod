@@ -2,10 +2,7 @@ module github.com/kurtosis-tech/avalanche-package/wallet
 
 go 1.19
 
-require (
-	github.com/ava-labs/avalanche-network-runner v1.6.0
-	github.com/ava-labs/avalanchego v1.10.2
-)
+require github.com/ava-labs/avalanchego v1.10.2
 
 require (
 	github.com/DataDog/zstd v1.5.2 // indirect
@@ -31,6 +28,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d // indirect
+	github.com/onsi/gomega v1.26.0 // indirect
 	github.com/pires/go-proxyproto v0.6.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.15.1 // indirect
@@ -42,7 +40,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/stretchr/testify v1.8.3 // indirect
-	github.com/supranational/blst v0.3.11-0.20220920110316-f72618070295 // indirect
+	github.com/supranational/blst v0.3.11 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220614013038-64ee5596c38a // indirect
 	github.com/tklauser/go-sysconf v0.3.5 // indirect
 	github.com/tklauser/numcpus v0.2.2 // indirect
