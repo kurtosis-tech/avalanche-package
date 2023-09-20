@@ -1,6 +1,6 @@
-node_launcher = import_module("github.com/kurtosis-tech/avalanche-package/src/node_launcher.star")
-builder_service = import_module("github.com/kurtosis-tech/avalanche-package/src/builder.star")
-input_parser = import_module("github.com/kurtosis-tech/avalanche-package/src/package_io/input_parser.star")
+node_launcher = import_module("./src/node_launcher.star")
+builder_service = import_module("./src/builder.star")
+input_parser = import_module("./src/package_io/input_parser.star")
 
 def run(plan, args):
     args_with_right_defaults = input_parser.parse_input(args)

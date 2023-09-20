@@ -1,5 +1,5 @@
-static_files = import_module("github.com/kurtosis-tech/avalanche-package/static_files/static_files.star")
-utils = import_module("github.com/kurtosis-tech/avalanche-package/src/utils.star")
+static_files = import_module("../static_files/static_files.star")
+utils = import_module("./utils.star")
 
 GO_IMG = "golang:1.20.4"
 ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
@@ -25,10 +25,10 @@ def init(plan, node_cfg, subnet_genesis_json):
     )
 
     genesis_generator = plan.upload_files(
-        "github.com/kurtosis-tech/avalanche-package/genesis")
+        "/genesis")
 
     wallet = plan.upload_files(
-        "github.com/kurtosis-tech/avalanche-package/wallet")
+        "/wallet")
 
     subnet_genesis = plan.upload_files(subnet_genesis_json)
 
