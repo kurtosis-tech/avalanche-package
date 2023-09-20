@@ -1,4 +1,4 @@
-node_launcher = import_module("/src/node_launcher.star")
+node_launcher = import_module("./src/node_launcher.star")
 builder_service = import_module("./src/builder.star")
 input_parser = import_module("./src/package_io/input_parser.star")
 
