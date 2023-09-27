@@ -1,4 +1,4 @@
-static_files = import_module("../static_files/static_files.star")
+static_files = import_module("./static_files_locators.star")
 utils = import_module("./utils.star")
 
 GO_IMG = "golang:1.20.4"
