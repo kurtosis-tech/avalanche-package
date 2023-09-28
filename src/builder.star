@@ -25,10 +25,10 @@ def init(plan, node_cfg, subnet_genesis_json):
     )
 
     genesis_generator = plan.upload_files(
-        static_files.STATIC_FILES_DIRPATH + "/genesis")
+        "../genesis")
 
     wallet = plan.upload_files(
-        static_files.STATIC_FILES_DIRPATH + "/wallet")
+        "../wallet")
 
     subnet_genesis = plan.upload_files(subnet_genesis_json)
 
