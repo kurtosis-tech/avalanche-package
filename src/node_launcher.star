@@ -14,7 +14,7 @@ ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
 PUBLIC_IP = "127.0.0.1"
 
-utils = import_module("github.com/kurtosis-tech/avalanche-package/src/utils.star")
+utils = import_module("./utils.star")
 
 def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memory, vmId, dont_start_subnets, custom_subnet_vm_path, custom_subnet_vm_url):
     bootstrap_ips = []
