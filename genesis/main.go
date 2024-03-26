@@ -71,7 +71,10 @@ func main() {
 				fmt.Printf("an error occurred while loading cert pair for node '%v': %v\n", index, err)
 				os.Exit(nonZeroExitCode)
 			}
-			nodeId := ids.NodeIDFromCert(cert.Leaf)
+			stakingCert := staking.Certificate{
+				Raw: cert.Leaf.Raw, PublicKey: cert.Leaf.PublicKey,
+			}
+			nodeId := ids.NodeIDFromCert(&stakingCert)
 			if err = os.WriteFile(fmt.Sprintf(nodeIdPath, index), []byte(nodeId.String()), perms.ReadOnly); err != nil {
 				fmt.Printf("an error occurred while writing out node id for node '%v': %v", index, err)
 				os.Exit(nonZeroExitCode)

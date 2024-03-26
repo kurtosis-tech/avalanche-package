@@ -1,7 +1,7 @@
 static_files = import_module("./static_files_locators.star")
 utils = import_module("./utils.star")
 
-GO_IMG = "golang:1.20.4"
+GO_IMG = "golang:1.22.2"
 ABS_PLUGIN_DIRPATH = "/avalanchego/build/plugins/"
 
 BUILDER_SERVICE_NAME = "builder"

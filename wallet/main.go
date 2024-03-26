@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/ava-labs/avalanchego/wallet/chain/c"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -11,12 +13,9 @@ import (
 
 	"github.com/ava-labs/avalanchego/genesis"
 	"github.com/ava-labs/avalanchego/ids"
-	"github.com/ava-labs/avalanchego/utils/constants"
 	"github.com/ava-labs/avalanchego/utils/perms"
-	"github.com/ava-labs/avalanchego/vms/avm"
 	"github.com/ava-labs/avalanchego/vms/components/avax"
 	"github.com/ava-labs/avalanchego/vms/components/verify"
-	"github.com/ava-labs/avalanchego/vms/platformvm"
 	"github.com/ava-labs/avalanchego/vms/platformvm/reward"
 	"github.com/ava-labs/avalanchego/vms/platformvm/signer"
 	"github.com/ava-labs/avalanchego/vms/platformvm/txs"
@@ -82,12 +81,9 @@ const (
 )
 
 type wallet struct {
-	addr     ids.ShortID
-	pWallet  p.Wallet
-	pBackend p.Backend
-	pBuilder p.Builder
-	pSigner  p.Signer
-	xWallet  x.Wallet
+	p p.Wallet
+	x x.Wallet
+	c c.Wallet
 }
 
 type Genesis struct {
@@ -107,6 +103,9 @@ var (
 	defaultPoll = common.WithPollFrequency(500 * time.Millisecond)
 )
 
+// It's usage from builder.star is like this
+// subnetId, chainId, validatorIds, allocations, genesisChainId, assetId, transformationId, exportId, importId =
+// builder_service.create_subnet(plan, first_private_rpc_url, num_validators, is_elastic, vmId, chainName)
 func main() {
 	if len(os.Args) < minArgs {
 		fmt.Printf("Need at least '%v' args got '%v'\n", minArgs, len(os.Args))
@@ -258,7 +257,7 @@ func addPermissionlessValidator(w *wallet, assetId ids.ID, subnetId ids.ID, numV
 		}
 		startTime := time.Now().Add(startTimeDelayFromNow)
 		endTime := startTime.Add(endTimeFromStartTime)
-		validatorId, err := w.pWallet.IssueAddPermissionlessValidatorTx(
+		validatorTx, err := w.p.IssueAddPermissionlessValidatorTx(
 			&txs.SubnetValidator{
 				Validator: txs.Validator{
 					NodeID: nodeId,
@@ -279,14 +278,14 @@ func addPermissionlessValidator(w *wallet, assetId ids.ID, subnetId ids.ID, numV
 		if err != nil {
 			return nil, fmt.Errorf("an error occurred while adding validator '%v': %v", index, err)
 		}
-		validatorIDs = append(validatorIDs, validatorId)
+		validatorIDs = append(validatorIDs, validatorTx.ID())
 	}
 	return validatorIDs, nil
 }
 
 func transformSubnet(w *wallet, subnetId ids.ID, assetId ids.ID) (ids.ID, error) {
 	ctx := context.Background()
-	transformId, err := w.pWallet.IssueTransformSubnetTx(
+	transformSubnetTx, err := w.p.IssueTransformSubnetTx(
 		subnetId,
 		assetId,
 		uint64(defaultInitialSupply),
@@ -306,7 +305,7 @@ func transformSubnet(w *wallet, subnetId ids.ID, assetId ids.ID) (ids.ID, error)
 	if err != nil {
 		return ids.Empty, err
 	}
-	return transformId, err
+	return transformSubnetTx.ID(), err
 }
 
 func createAssetOnXChainImportToPChain(w *wallet, name string, symbol string, denomination byte, maxSupply uint64) (ids.ID, ids.ID, ids.ID, error) {
@@ -317,7 +316,7 @@ func createAssetOnXChainImportToPChain(w *wallet, name string, symbol string, de
 			genesis.EWOQKey.PublicKey().Address(),
 		},
 	}
-	assetId, err := w.xWallet.IssueCreateAssetTx(
+	assetTx, err := w.x.IssueCreateAssetTx(
 		name,
 		symbol,
 		denomination,
@@ -335,12 +334,12 @@ func createAssetOnXChainImportToPChain(w *wallet, name string, symbol string, de
 	if err != nil {
 		return ids.Empty, ids.Empty, ids.Empty, fmt.Errorf("an error occurred while creating asset: %v", err)
 	}
-	exportId, err := w.xWallet.IssueExportTx(
+	exportTx, err := w.x.IssueExportTx(
 		ids.Empty,
 		[]*avax.TransferableOutput{
 			{
 				Asset: avax.Asset{
-					ID: assetId,
+					ID: assetTx.ID(),
 				},
 				Out: &secp256k1fx.TransferOutput{
 					Amt:          maxSupply,
@@ -353,15 +352,15 @@ func createAssetOnXChainImportToPChain(w *wallet, name string, symbol string, de
 	if err != nil {
 		return ids.Empty, ids.Empty, ids.Empty, fmt.Errorf("an error occurred while issuing asset export: %v", err)
 	}
-	importId, err := w.pWallet.IssueImportTx(
-		w.xWallet.BlockchainID(),
+	importTx, err := w.p.IssueImportTx(
+		w.x.Builder().Context().BlockchainID,
 		owner,
 		common.WithContext(ctx),
 	)
 	if err != nil {
 		return ids.Empty, ids.Empty, ids.Empty, fmt.Errorf("an error occurred while issuing asset import: %v", err)
 	}
-	return assetId, exportId, importId, nil
+	return assetTx.ID(), exportTx.ID(), importTx.ID(), nil
 }
 
 func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.ID, error) {
@@ -379,7 +378,7 @@ func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.I
 		}
 		startTime := time.Now().Add(startTimeDelayFromNow)
 		endTime := startTime.Add(endTimeFromStartTime)
-		validatorId, err := w.pWallet.IssueAddSubnetValidatorTx(
+		addValidatorTx, err := w.p.IssueAddSubnetValidatorTx(
 			&txs.SubnetValidator{
 				Validator: txs.Validator{
 					NodeID: nodeId,
@@ -395,7 +394,7 @@ func addSubnetValidators(w *wallet, subnetId ids.ID, numValidators int) ([]ids.I
 		if err != nil {
 			return nil, fmt.Errorf("an error occurred while adding node '%v' as validator: %v", index, err)
 		}
-		validatorIDs = append(validatorIDs, validatorId)
+		validatorIDs = append(validatorIDs, addValidatorTx.ID())
 	}
 
 	return validatorIDs, nil
@@ -417,7 +416,7 @@ func createBlockChain(w *wallet, subnetId ids.ID, vmId ids.ID, chainName string)
 	}
 	genesisChainId := fmt.Sprintf("%d", genesis.Config.ChainId)
 	var nilFxIds []ids.ID
-	chainId, err := w.pWallet.IssueCreateChainTx(
+	createChainTx, err := w.p.IssueCreateChainTx(
 		subnetId,
 		genesisData,
 		vmId,
@@ -429,15 +428,16 @@ func createBlockChain(w *wallet, subnetId ids.ID, vmId ids.ID, chainName string)
 	if err != nil {
 		return ids.Empty, nil, "", nil
 	}
-	return chainId, allocations, genesisChainId, nil
+	return createChainTx.ID(), allocations, genesisChainId, nil
 }
 
 func createSubnet(w *wallet) (ids.ID, error) {
 	ctx := context.Background()
-	subnetId, err := w.pWallet.IssueCreateSubnetTx(
+	addr := genesis.EWOQKey.PublicKey().Address()
+	createSubnetTx, err := w.p.IssueCreateSubnetTx(
 		&secp256k1fx.OutputOwners{
 			Threshold: 1,
-			Addrs:     []ids.ShortID{w.addr},
+			Addrs:     []ids.ShortID{addr},
 		},
 		common.WithContext(ctx),
 		defaultPoll,
@@ -446,33 +446,29 @@ func createSubnet(w *wallet) (ids.ID, error) {
 		return ids.Empty, err
 	}
 
-	return subnetId, nil
+	return createSubnetTx.ID(), nil
 }
 
 func newWallet(uri string) (*wallet, error) {
 	ctx := context.Background()
 	kc := secp256k1fx.NewKeychain(genesis.EWOQKey)
-	pCTX, xCTX, utxos, err := primary.FetchState(ctx, uri, kc.Addresses())
-	if err != nil {
-		return nil, err
-	}
-	// platform client
-	pClient := platformvm.NewClient(uri)
-	pTXs := make(map[ids.ID]*txs.Tx)
-	pUTXOs := primary.NewChainUTXOs(constants.PlatformChainID, utxos)
-	xChainID := xCTX.BlockchainID()
-	xUTXOs := primary.NewChainUTXOs(xChainID, utxos)
-	var w wallet
-	w.addr = genesis.EWOQKey.PublicKey().Address()
-	w.pBackend = p.NewBackend(pCTX, pUTXOs, pTXs)
-	w.pBuilder = p.NewBuilder(kc.Addresses(), w.pBackend)
-	w.pSigner = p.NewSigner(kc, w.pBackend)
-	w.pWallet = p.NewWallet(w.pBuilder, w.pSigner, pClient, w.pBackend)
 
-	xBackend := x.NewBackend(xCTX, xChainID, xUTXOs)
-	xBuilder := x.NewBuilder(kc.Addresses(), xBackend)
-	xSigner := x.NewSigner(kc, xBackend)
-	xClient := avm.NewClient(uri, "X")
-	w.xWallet = x.NewWallet(xBuilder, xSigner, xClient, xBackend)
-	return &w, nil
+	// MakeWallet fetches the available UTXOs owned by [kc] on the network that
+	// [uri] is hosting.
+	walletSyncStartTime := time.Now()
+	createdWallet, err := primary.MakeWallet(ctx, &primary.WalletConfig{
+		URI:          uri,
+		AVAXKeychain: kc,
+		EthKeychain:  kc,
+	})
+	if err != nil {
+		log.Fatalf("failed to initialize wallet: %s\n", err)
+	}
+	log.Printf("synced wallet in %s\n", time.Since(walletSyncStartTime))
+
+	return &wallet{
+		p: createdWallet.P(),
+		x: createdWallet.X(),
+		c: createdWallet.C(),
+	}, nil
 }

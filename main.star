@@ -25,9 +25,14 @@ def run(plan, args):
     networkId = node_config["network-id"]
     if not ephemeral_ports:
         plan.print("Warning - Ephemeral ports have been disabled will be publishing first node rpc on 9650 and staking on 9651, this can break due to port clash!")
+
+    # initalize the builder service with the plan containing node config and the subnet genesis json
     builder_service.init(plan, node_config, subnet_genesis_json)
+    # generate the genesis file
     genesis, vmId = builder_service.genesis(plan, networkId ,node_count, vmName)
+    # launch the nodes
     rpc_urls, public_rpc_urls, launch_commands = node_launcher.launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memory, vmId, dont_start_subnets, custom_subnet_vm_path, custom_subnet_vm_url)
+    # get the first private rpc url
     first_private_rpc_url = rpc_urls[0]
     if public_rpc_urls:
         rpc_urls = public_rpc_urls
@@ -52,4 +57,9 @@ def run(plan, args):
             output["elastic config"]["export id"] = exportId
             output["elastic config"]["import id"] = importId
             output["elastic config"]["token symbol"] = "FOO"
+
+    p_chain_api_url = "{0}/ext/P".format(first_private_rpc_url)
+    info_api_url = "{0}/ext/info".format(first_private_rpc_url)
+    plan.print("p_chain_api_url: {0}\ninfo_api_url: {1}".format(p_chain_api_url, info_api_url))
+    
     return output

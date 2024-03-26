@@ -2,19 +2,19 @@
     "dont_start_subnets": false,
     "is_elastic": false,
     "ephemeral_ports": true,
-    "avalanchego_image": "avaplatform/avalanchego:v1.10.1-Subnet-EVM-master",
+    "avalanchego_image": "avaplatform/avalanchego:v1.11.5",
     "node_config": {
         "network-id": "1337",
         "staking-enabled": false,
         "health-check-frequency": "5s"
     },
-    "node_count": 5,
-    "num_validators": 5,
+    "node_count": 2,
+    "num_validators": 1,
     "min_cpu": 0,
     "min_memory": 0,
     "vm_name": "testNet",
     "chain_name": "testChain",
-    "custom_subnet_vm_path": "",
+    "custom_subnet_vm_path": "/uploaded_plugins/subnet-evm",
     "custom_subnet_vm_url": "",
-    "subnet_genesis_json": "/static_files/genesis.json"
+    "subnet_genesis_json": "/static_files/genesis.json",    
 }

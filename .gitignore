@@ -85,3 +85,4 @@ yarn-error.log
 # Bazel
 /bazel-*
 
+/static_files/subnet-evm
