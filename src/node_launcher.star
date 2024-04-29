@@ -59,7 +59,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
             },
             entrypoint = ["/bin/sh", "-c", log_file_cmd + " && cd /tmp && tail -F *.log"],
             files = {
-                "/tmp/": genesis,
+                "/tmp/data": genesis,
             },
             public_ports = public_ports,
             min_cpu  = min_cpu,
