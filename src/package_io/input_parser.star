@@ -5,6 +5,8 @@ def parse_input(input_args):
     result = get_default_input_args()
     for attr in input_args:
         result[attr] = input_args[attr]
+    if result["node_count"] < 2:
+        fail("node_count must be at least 2")
     result["num_validators"] = result.get("num_validators", result["node_count"])
     return result
 
