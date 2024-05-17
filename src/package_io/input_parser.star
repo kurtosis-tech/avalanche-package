@@ -8,6 +8,9 @@ def parse_input(input_args):
     if result["node_count"] < 2:
         fail("node_count must be at least 2")
     result["num_validators"] = result.get("num_validators", result["node_count"])
+    # if both custom_subnet_vm_path and custom_subnet_vm_url are provided, throw error
+    if result["custom_subnet_vm_path"] and result["custom_subnet_vm_url"]:
+        fail("Only one of custom_subnet_vm_path and custom_subnet_vm_url can be provided")
     return result
 
 

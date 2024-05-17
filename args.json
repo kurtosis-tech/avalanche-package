@@ -14,7 +14,7 @@
     "min_memory": 0,
     "vm_name": "testNet",
     "chain_name": "testChain",
-    "custom_subnet_vm_path": "/uploaded_plugins/subnet-evm",
-    "custom_subnet_vm_url": "",
-    "subnet_genesis_json": "/static_files/genesis.json",    
+    "custom_subnet_vm_path": "",
+    "custom_subnet_vm_url": "https://github.com/ava-labs/subnet-evm/releases/download/v0.6.4/subnet-evm_0.6.4_linux_amd64.tar.gz",
+    "subnet_genesis_json": "/static_files/genesis.json",
 }

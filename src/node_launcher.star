@@ -56,20 +56,31 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
         log_files_cmds = ["touch /tmp/{0}".format(log_file) for log_file in log_files]
         log_file_cmd = " && ".join(log_files_cmds)
 
-        subnet_evm_plugin = plan.upload_files(
-            "../static_files/subnet-evm")
+        if custom_subnet_vm_path:
+            subnet_evm_plugin = plan.upload_files(custom_subnet_vm_path)
+            # take only dir from custom_subnet_vm_path
+            plan.print("subnet_evm_plugin: {0}".format(custom_subnet_vm_path))
+            # Extract the directory part of the path
+            last_slash_index = custom_subnet_vm_path.rfind('/')
+            subnet_evm_plugin_dir = custom_subnet_vm_path[:last_slash_index]
+            plan.print("subnet_evm_plugin_dir: {0}".format(subnet_evm_plugin_dir))
+            node_files = {
+                "/tmp/data": genesis,
+                subnet_evm_plugin_dir: subnet_evm_plugin
+            }
+        elif custom_subnet_vm_url:
+            node_files = {
+                "/tmp/data": genesis
+            }
 
         node_service_config = ServiceConfig(
-            image = image,
-            ports = {
-                "rpc": PortSpec(number = RPC_PORT_NUM, transport_protocol = "TCP", wait = None),
-                "staking": PortSpec(number = STAKING_PORT_NUM, transport_protocol = "TCP", wait = None)
+            image=image,
+            ports={
+                "rpc": PortSpec(number=RPC_PORT_NUM, transport_protocol="TCP", wait=None),
+                "staking": PortSpec(number=STAKING_PORT_NUM, transport_protocol="TCP", wait=None)
             },
             entrypoint=["/bin/sh", "-c", log_file_cmd + " && cd /tmp && tail -F *.log"],
-            files={
-                "/tmp/data": genesis,
-                "/uploaded_plugins/": subnet_evm_plugin,
-            },
+            files=node_files,
             public_ports=public_ports,
             min_cpu=min_cpu,
             min_memory=min_memory,
@@ -100,9 +111,7 @@ def launch(plan, genesis, image, node_count, ephemeral_ports, min_cpu, min_memor
             if custom_subnet_vm_path:
                 cp(plan, node_name, custom_subnet_vm_path, ABS_PLUGIN_DIRPATH + vmId)
             elif custom_subnet_vm_url:
-                download_to_path(plan, custom_subnet_vm_url, ABS_PLUGIN_DIRPATH + vmId)
-            else:
-                copy_over_default_plugin(plan, node_name, vmId)
+                download_to_path_and_untar(plan, node_name, custom_subnet_vm_url, ABS_PLUGIN_DIRPATH + vmId)
 
         plan.exec(
             service_name=node_name,
@@ -171,17 +180,6 @@ def wait_for_health(plan, node_name):
     )
 
 
-def copy_over_default_plugin(plan, node_name, vmId):
-    filename_response = plan.exec(
-        service_name=node_name,
-        recipe=ExecRecipe(
-            command=["/bin/sh", "-c", "ls {0} | tr -d '\n'".format(ABS_PLUGIN_DIRPATH)]
-        )
-    )
-    default_plugin_name = filename_response["output"]
-    cp(plan, node_name, ABS_PLUGIN_DIRPATH + default_plugin_name, ABS_PLUGIN_DIRPATH + vmId)
-
-
 def cp(plan, node_name, src, dest):
     plan.exec(
         service_name=node_name,
@@ -191,7 +189,8 @@ def cp(plan, node_name, src, dest):
     )
 
 
-def download_to_path(plan, node_name, url, dest):
+def download_to_path_and_untar(plan, node_name, url, dest):
+    # Install curl
     plan.exec(
         service_name=node_name,
         recipe=ExecRecipe(
@@ -200,9 +199,30 @@ def download_to_path(plan, node_name, url, dest):
         )
     )
 
+    # Download the file
+    download_path = "/static_files/subnet_vm.tar.gz"
+    plan.print("Downloading {0} to {1}".format(url, download_path))
     plan.exec(
         service_name=node_name,
         recipe=ExecRecipe(
-            command=["/bin/sh", "-c", "curl {0} -o {1}".format(url, dest)]
+            command=["/bin/sh", "-c", "mkdir -p /static_files/ && curl -L {0} -o {1}".format(url, download_path)]
+        )
+    )
+
+    # Untar the downloaded file
+    plan.print("Untaring {0}".format(download_path))
+    plan.exec(
+        service_name=node_name,
+        recipe=ExecRecipe(
+            command=["/bin/sh", "-c", "mkdir -p /avalanchego/build/plugins && tar -zxvf {0} -C /static_files/".format(download_path)]
+        )
+    )
+
+    # Move the extracted binary to the destination
+    plan.print("Moving extracted binary to {0}".format(dest))
+    plan.exec(
+        service_name=node_name,
+        recipe=ExecRecipe(
+            command=["/bin/sh", "-c", "mv /static_files/subnet-evm {0}".format(dest)]
         )
     )
